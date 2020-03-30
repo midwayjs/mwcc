@@ -12,13 +12,13 @@ export default class MwccHost {
   private parsedCommandLine: ts.ParsedCommandLine;
 
   constructor (private projectDir: string, private options?: MwccOptions) {
-    const derivedRootDir = options.compilerOptions.rootDir
-    const derivedOutputDir = options.compilerOptions.outDir
+    const derivedRootDir = options?.compilerOptions?.rootDir ?? 'src'
+    const derivedOutputDir = options?.compilerOptions?.outDir ?? 'dist'
 
     const parsedCommandLine = this.parsedCommandLine = ts.parseJsonConfigFileContent(options, ts.sys, projectDir)
 
-    const context = this.context = {
-      options,
+    const context: MwccContext = this.context = {
+      options: options!,
       files: parsedCommandLine.fileNames,
       outFiles: [],
       projectDir,
@@ -37,7 +37,7 @@ export default class MwccHost {
   }
 
   async run () {
-    const compilerOptions = { ...this.context.options.compilerOptions }
+    const compilerOptions: ts.CompilerOptions = { ...this.context.options.compilerOptions }
     /**
      * 0. redirect output dir
      */
@@ -48,7 +48,7 @@ export default class MwccHost {
     const host = ts.createCompilerHost(compilerOptions)
     const program = ts.createProgram(this.context.files, compilerOptions, host)
     const emitResult = program.emit()
-    this.context.outFiles = emitResult.emittedFiles
+    this.context.outFiles = emitResult.emittedFiles ?? []
 
     const allDiagnostics = ts
       .getPreEmitDiagnostics(program)
@@ -62,7 +62,7 @@ export default class MwccHost {
     /**
      * 2. run plugins
      */
-    if (this.options.plugins?.bundler) {
+    if (this.options?.plugins?.bundler) {
       await bundler(this.context, host)
     }
 
@@ -83,7 +83,7 @@ export default class MwccHost {
 
   reportDiagnostic = (diagnostic: ts.Diagnostic) => {
     if (diagnostic.file) {
-      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start)
+      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!)
       const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
       console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`)
     } else {
@@ -94,6 +94,9 @@ export default class MwccHost {
   finalizeFileSystem (host: ts.CompilerHost) {
     for (const file of this.context.outFiles) {
       const content = host.readFile(file)
+      if (content == null) {
+        continue
+      }
       const filename = path.resolve(this.context.derivedOutputDir, path.relative(this.context.buildDir, file))
       host.writeFile(filename, content, false)
     }

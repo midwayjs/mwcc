@@ -18,7 +18,7 @@ export function getDefaultOptions (projectDir: string, outputDir: string): MwccO
   }
 }
 
-export function mergeCompilerOptions (base: ts.CompilerOptions, target: ts.CompilerOptions) {
+export function mergeCompilerOptions (base: ts.CompilerOptions, target?: ts.CompilerOptions) {
   const compilerOptions = Object.assign({}, base, target)
   if (target?.inlineSourceMap) {
     delete compilerOptions.sourceMap
@@ -29,7 +29,7 @@ export function mergeCompilerOptions (base: ts.CompilerOptions, target: ts.Compi
     // TODO: diagnostics warnings.
   }
   if (compilerOptions.incremental && compilerOptions.tsBuildInfoFile == null) {
-    compilerOptions.tsBuildInfoFile = path.join(compilerOptions.outDir, '.tsbuildinfo')
+    compilerOptions.tsBuildInfoFile = path.join(compilerOptions.outDir!, '.tsbuildinfo')
   }
   return compilerOptions
 }
@@ -43,11 +43,14 @@ export function resolveTsConfigFile (projectDir: string): ts.ParsedCommandLine {
       return false
     }
   })
-  const tsconfigSource = ts.readJsonConfigFile(tsconfigPath, (filename) => {
+  if (tsconfigPath == null) {
+    throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
+  }
+  const tsconfigSource = ts.readJsonConfigFile(tsconfigPath, (filename: string) => {
     try {
       return fs.readFileSync(filename, 'utf8')
     } catch {
-
+      return undefined
     }
   })
   const cli = ts.parseJsonSourceFileConfigFileContent(tsconfigSource, ts.sys, projectDir)

@@ -4,8 +4,8 @@ import * as childProcess from 'child_process'
 import { MwccContext, MwccCompilerHost } from '../iface'
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
-  const bundleOpts = ctx.options.plugins.bundler
-  let outFiles = []
+  const bundleOpts = ctx.options.plugins!.bundler!
+  let outFiles: string[] = []
 
   for (let [entry, target] of Object.entries(bundleOpts.entries)) {
     entry = path.resolve(ctx.projectDir, entry)
@@ -68,19 +68,19 @@ function resolveNodeBinary (variant: string) {
   if (match == null) {
     return null
   }
-  if (match[2] !== process.versions[match[1]]) {
+  if (match[2] !== process.versions[match[1] as keyof typeof process.versions]) {
     return null
   }
   return process.execPath
 }
 
-function spawn (command, args) {
+function spawn (command: string, args: string[]) {
   return new Promise((resolve, reject) => {
     const cp = childProcess.spawn(command, args, { stdio: 'inherit' })
     cp.on('error', (err) => {
       reject(err)
     })
-    cp.on('exit', (code) => {
+    cp.on('exit', (code: number) => {
       if (code > 0) {
         return reject(new Error(`command(${command}) exited with non-zero code.`))
       }

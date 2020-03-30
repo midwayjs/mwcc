@@ -31,7 +31,7 @@ export interface MwccContext {
   projectDir: string;
   buildDir: string;
   derivedOutputDir: string;
-  getTsOutputPath: (filename: string) => string;
+  getTsOutputPath: (filename: string) => string | undefined;
 }
 
 export interface MwccCompilerHost extends ts.CompilerHost {

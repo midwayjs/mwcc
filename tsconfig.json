@@ -1,19 +1,27 @@
 {
   "compilerOptions": {
+    "incremental": true,
     "target": "es2018",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "noImplicitThis": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "src",
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
     "stripInternal": true,
     "pretty": true,
-    "declaration": true,
-    "outDir": "dist",
-    "sourceMap": true
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "exclude": [
-    "dist",
-    "node_modules",
-    "test"
-  ]
+  "include": ["src"],
+  "exclude": []
 }
