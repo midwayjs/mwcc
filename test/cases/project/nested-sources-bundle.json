@@ -1,0 +1,16 @@
+{
+  "scenario": "nested-sources",
+  "projectRoot": "test/cases/projects/nested-sources",
+  "outputFiles": [
+    "dist/index.js",
+    "dist/index.js.map"
+  ],
+  "include": ["src/foo"],
+  "plugins": {
+    "bundler": {
+      "entries": {
+        "src/foo/emit.ts": "index.js"
+      }
+    }
+  }
+}

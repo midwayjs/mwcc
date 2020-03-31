@@ -7,7 +7,7 @@ import path = require('path');
 import os = require('os');
 import assert = require('assert');
 
-export default class MwccHost {
+export default class Orchestra {
   context: MwccContext;
 
   private parsedCommandLine: ts.ParsedCommandLine;

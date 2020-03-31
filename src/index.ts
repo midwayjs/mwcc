@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import MwccHost from './host'
+import Orchestra from './orchestra'
 import { MwccOptions } from './iface'
 import { mergeCompilerOptions, getDefaultOptions, resolveTsConfigFile } from './config'
 
@@ -13,10 +13,10 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
   const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, options.compilerOptions)
   options.compilerOptions = compilerOptions
 
-  const host = new MwccHost(projectDir, options)
-  const { summary, diagnostics } = await host.run()
+  const orchestration = new Orchestra(projectDir, options)
+  const { summary, diagnostics } = await orchestration.run()
 
-  fs.writeFileSync(path.join(host.context.derivedOutputDir, 'midway.build.json'), JSON.stringify(summary))
+  fs.writeFileSync(path.join(orchestration.context.derivedOutputDir, 'midway.build.json'), JSON.stringify(summary))
   return { summary, diagnostics }
 }
 

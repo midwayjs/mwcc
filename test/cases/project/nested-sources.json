@@ -1,0 +1,11 @@
+{
+  "scenario": "nested-sources",
+  "projectRoot": "test/cases/projects/nested-sources",
+  "outputFiles": [
+    "dist/foo/emit.js",
+    "dist/foo/emit.js.map",
+    "dist/foo/decl.js",
+    "dist/foo/decl.js.map"
+  ],
+  "include": ["src/foo"]
+}
