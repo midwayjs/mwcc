@@ -10,7 +10,7 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
     options = {}
   }
   const defaultOptions = getDefaultOptions(projectDir, outputDir)
-  const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, options.compilerOptions)
+  const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, options.compilerOptions, projectDir)
 
   const orchestration = new Orchestra(projectDir, { ...options, compilerOptions })
   const { summary, diagnostics } = await orchestration.run()
