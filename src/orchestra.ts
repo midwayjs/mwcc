@@ -13,7 +13,6 @@ export default class Orchestra {
   private parsedCommandLine: ts.ParsedCommandLine;
 
   constructor (private projectDir: string, private options?: MwccOptions) {
-    const derivedRootDir = options?.compilerOptions?.rootDir ?? 'src'
     const derivedOutputDir = options?.compilerOptions?.outDir ?? 'dist'
 
     const parsedCommandLine = this.parsedCommandLine = ts.parseJsonConfigFileContent(options, ts.sys, projectDir)

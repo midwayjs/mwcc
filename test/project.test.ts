@@ -1,4 +1,3 @@
-import assert = require('assert')
 import * as fs from 'fs'
 import * as path from 'path'
 import * as globby from 'globby'
@@ -6,6 +5,7 @@ import * as childProcess from 'child_process'
 
 import { compileWithOptions } from '../src/index'
 import { rimraf } from './util'
+import assert = require('assert')
 
 const projectCases = fs.readdirSync(path.join(__dirname, 'cases/project'))
 

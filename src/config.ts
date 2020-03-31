@@ -1,9 +1,8 @@
 import * as ts from 'typescript'
-import * as fs from 'fs'
 import * as path from 'path'
 import { MwccOptions } from './iface'
 
-export function getDefaultOptions (projectDir: string, outputDir: string): MwccOptions {
+export function getDefaultOptions (projectDir: string, outputDir: string = 'dist', rootDir: string = 'src'): MwccOptions {
   return {
     compilerOptions: {
       target: ts.ScriptTarget.ES2018,
@@ -16,7 +15,7 @@ export function getDefaultOptions (projectDir: string, outputDir: string): MwccO
       inlineSourceMap: false,
       inlineSources: false,
       outDir: path.resolve(projectDir, outputDir),
-      rootDir: path.resolve(projectDir, 'src'),
+      rootDir: path.resolve(projectDir, rootDir),
       listEmittedFiles: true
     },
     exclude: ['**/node_modules']
@@ -39,25 +38,16 @@ export function mergeCompilerOptions (base: ts.CompilerOptions, target?: ts.Comp
   return compilerOptions
 }
 
-export function resolveTsConfigFile (projectDir: string): ts.ParsedCommandLine {
-  const tsconfigPath = ts.findConfigFile(process.cwd(), (filename) => {
-    try {
-      const stat = fs.statSync(filename)
-      return stat.isFile()
-    } catch {
-      return false
-    }
-  })
+export function resolveTsConfigFile (projectDir: string, configName?: string): ts.ParsedCommandLine {
+  const tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
   if (tsconfigPath == null) {
     throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
   }
-  const tsconfigSource = ts.readJsonConfigFile(tsconfigPath, (filename: string) => {
-    try {
-      return fs.readFileSync(filename, 'utf8')
-    } catch {
-      return undefined
-    }
-  })
-  const cli = ts.parseJsonSourceFileConfigFileContent(tsconfigSource, ts.sys, projectDir)
+  const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+  if (readResult.error) {
+    throw new Error(`Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`)
+  }
+  const config = { ...readResult.config, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir).compilerOptions!, readResult.config.compilerOptions) }
+  const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }

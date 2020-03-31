@@ -11,9 +11,8 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
   }
   const defaultOptions = getDefaultOptions(projectDir, outputDir)
   const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, options.compilerOptions)
-  options.compilerOptions = compilerOptions
 
-  const orchestration = new Orchestra(projectDir, options)
+  const orchestration = new Orchestra(projectDir, { ...options, compilerOptions })
   const { summary, diagnostics } = await orchestration.run()
 
   fs.writeFileSync(path.join(orchestration.context.derivedOutputDir, 'midway.build.json'), JSON.stringify(summary))
@@ -23,4 +22,8 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
 export async function compileInProject (projectDir: string, outputDir: string, options?: MwccOptions) {
   const cli = resolveTsConfigFile(projectDir)
   return compileWithOptions(projectDir, outputDir, { ...options, compilerOptions: cli.options })
+}
+
+export function findAndParseTsConfig (projectDir: string, configName?: string) {
+  return resolveTsConfigFile(projectDir, configName)
 }
