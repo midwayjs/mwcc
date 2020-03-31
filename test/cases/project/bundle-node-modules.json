@@ -14,5 +14,6 @@
   ],
   "sourceMapFiles": {
     "dist/index.js.map": ["../src/entry.ts"]
-  }
+  },
+  "integration": "dist/index.js"
 }

@@ -16,6 +16,7 @@ for (const projectName of projectCases) {
     const outDir = path.resolve(project.projectRoot, project.outDir || 'dist')
     before(() => {
       rimraf(outDir)
+      process.chdir(projectDir)
     })
 
     it('should compile', async () => {

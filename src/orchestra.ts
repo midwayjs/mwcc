@@ -17,13 +17,21 @@ export default class Orchestra {
 
     const parsedCommandLine = this.parsedCommandLine = ts.parseJsonConfigFileContent(options, ts.sys, projectDir)
 
+    /**
+     * mock paths for bundlers
+     */
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mwcc-'))
+    fs.symlinkSync(path.join(projectDir, 'node_modules'), path.join(tempDir, 'node_modules'))
+    const buildDir = path.join(tempDir, 'build')
+    fs.mkdirSync(buildDir)
+
     const context: MwccContext = this.context = {
       options: options!,
       files: parsedCommandLine.fileNames,
       outFiles: [],
       projectDir,
       derivedOutputDir,
-      buildDir: fs.mkdtempSync(path.join(os.tmpdir(), 'mwcc-')),
+      buildDir,
       getTsOutputPath (filename) {
         if (path.isAbsolute(filename) && !filename.startsWith(projectDir)) {
           return
