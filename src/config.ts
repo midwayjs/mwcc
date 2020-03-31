@@ -6,7 +6,12 @@ import { MwccOptions } from './iface'
 export function getDefaultOptions (projectDir: string, outputDir: string): MwccOptions {
   return {
     compilerOptions: {
+      target: ts.ScriptTarget.ES2018,
+      module: ts.ModuleKind.CommonJS,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
+      jsx: ts.JsxEmit.React,
       experimentalDecorators: true,
+      emitDecoratorMetadata: true,
       sourceMap: true,
       inlineSourceMap: false,
       inlineSources: false,

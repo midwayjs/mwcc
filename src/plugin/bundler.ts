@@ -1,6 +1,6 @@
 import * as path from 'path'
-import * as ncc from '@midwayjs/ncc'
 import * as childProcess from 'child_process'
+import ncc = require('@midwayjs/ncc')
 import { MwccContext, MwccCompilerHost } from '../iface'
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {

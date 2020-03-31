@@ -5,6 +5,7 @@ import bundler from './plugin/bundler'
 import fs = require('fs');
 import path = require('path');
 import os = require('os');
+import assert = require('assert');
 
 export default class MwccHost {
   context: MwccContext;
@@ -26,12 +27,20 @@ export default class MwccHost {
       buildDir: fs.mkdtempSync(path.join(os.tmpdir(), 'mwcc-')),
       getTsOutputPath (filename) {
         if (path.isAbsolute(filename) && !filename.startsWith(projectDir)) {
-          return undefined
+          return
         }
 
-        const relPath = path.relative(derivedRootDir, filename)
-        const basename = path.basename(relPath).replace(/\.tsx?$/, '')
-        return path.join(context.buildDir, path.dirname(relPath), basename + '.js')
+        const files = ts.getOutputFileNames(parsedCommandLine, filename, true)
+          .filter(it => it.endsWith('.js'))
+        if (files.length === 0) {
+          return
+        }
+        assert(files.length === 1)
+        const expectedOutputFile = files[0]
+
+        const relPath = path.relative(derivedOutputDir, expectedOutputFile)
+        const basename = path.basename(relPath)
+        return path.join(context.buildDir, path.dirname(relPath), basename)
       }
     }
   }

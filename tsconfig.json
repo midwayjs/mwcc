@@ -9,6 +9,7 @@
     "outDir": "./dist",
     "rootDir": "src",
     "strict": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,

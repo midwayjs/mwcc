@@ -1,11 +1,11 @@
-import * as assert from 'assert'
+import assert = require('assert')
 import * as fs from 'fs'
 import * as path from 'path'
 import * as globby from 'globby'
 import * as childProcess from 'child_process'
 
-const { mwcc } = require('../src/index')
-const { rimraf } = require('./util')
+import { compileWithOptions } from '../src/index'
+import { rimraf } from './util'
 
 const projectCases = fs.readdirSync(path.join(__dirname, 'cases/project'))
 
@@ -17,7 +17,7 @@ for (const projectName of projectCases) {
       const projectDir = path.resolve(project.projectRoot)
       const outDir = project.outDir || 'dist'
       rimraf(path.join(projectDir, outDir))
-      const { diagnostics } = await mwcc(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+      const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
 
       assert.strictEqual(diagnostics.length, 0)
 
@@ -44,7 +44,7 @@ for (const projectName of projectCases) {
   })
 }
 
-function loadProject (projectName) {
+function loadProject (projectName: string) {
   const filepath = path.join(__dirname, 'cases/project', projectName)
   let it
   try {
@@ -55,7 +55,7 @@ function loadProject (projectName) {
   return it
 }
 
-async function exec (file) {
+async function exec (file: string) {
   if (!fs.statSync(file).isFile()) {
     throw new Error(`${file} not exists`)
   }
