@@ -5,12 +5,12 @@ import Orchestra from './orchestra'
 import { MwccOptions } from './iface'
 import { mergeCompilerOptions, getDefaultOptions, resolveTsConfigFile } from './config'
 
-export async function compileWithOptions (projectDir: string, outputDir: string, options?: MwccOptions) {
+export async function compileWithOptions (projectDir: string, outDir: string, options?: MwccOptions) {
   projectDir = path.resolve(projectDir)
   if (options == null) {
     options = {}
   }
-  const defaultOptions = getDefaultOptions(projectDir, outputDir)
+  const defaultOptions = getDefaultOptions(projectDir, outDir)
   const targetCli = ts.convertCompilerOptionsFromJson(options.compilerOptions, projectDir)
   const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, targetCli.options, projectDir)
 
@@ -21,11 +21,9 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
   return { summary, diagnostics }
 }
 
-export async function compileInProject (projectDir: string, outputDir: string, options?: MwccOptions) {
-  const cli = resolveTsConfigFile(projectDir)
-  return compileWithOptions(projectDir, outputDir, { ...options, compilerOptions: cli.options })
+export async function compileInProject (projectDir: string, outDir: string, options?: MwccOptions) {
+  const cli = resolveTsConfigFile(projectDir, outDir)
+  return compileWithOptions(projectDir, outDir, { ...options, compilerOptions: cli.options })
 }
 
-export function findAndParseTsConfig (projectDir: string, configName?: string) {
-  return resolveTsConfigFile(projectDir, configName)
-}
+export const findAndParseTsConfig = resolveTsConfigFile

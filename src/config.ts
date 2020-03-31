@@ -2,8 +2,8 @@ import * as ts from 'typescript'
 import * as path from 'path'
 import { TsConfigJsonObject, CompilerOptionsJsonObject } from './iface'
 
-export function getDefaultOptions (projectDir: string, outputDir: string = 'dist', rootDir: string = 'src'): TsConfigJsonObject {
-  const absoluteOutDir = path.resolve(projectDir, outputDir)
+export function getDefaultOptions (projectDir: string, outDir: string = 'dist', rootDir: string = 'src'): TsConfigJsonObject {
+  const absoluteOutDir = path.resolve(projectDir, outDir)
   const absoluteRootDir = path.resolve(projectDir, rootDir)
   return {
     compilerOptions: {
@@ -56,9 +56,12 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
   return compilerOptions
 }
 
-export function resolveTsConfigFile (projectDir: string, configName?: string): ts.ParsedCommandLine {
-  const tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
+export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string): ts.ParsedCommandLine {
+  let tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
   let readConfig
+  if (tsconfigPath?.startsWith(projectDir) === false) {
+    tsconfigPath = undefined
+  }
   if (tsconfigPath != null) {
     if (tsconfigPath == null) {
       throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
@@ -69,7 +72,7 @@ export function resolveTsConfigFile (projectDir: string, configName?: string): t
     }
     readConfig = readResult.config
   }
-  const config = { ...readConfig, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir).compilerOptions!, readConfig?.compilerOptions, projectDir) }
+  const config = { ...readConfig, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir, outDir).compilerOptions!, readConfig?.compilerOptions, projectDir) }
   const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }

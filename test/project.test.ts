@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as globby from 'globby'
 import * as childProcess from 'child_process'
 
-import { compileWithOptions } from '../src/index'
+import { compileWithOptions, compileInProject } from '../src/index'
 import { rimraf, flatMap } from './util'
 import assert = require('assert')
 
@@ -14,51 +14,74 @@ for (const projectName of projectCases) {
   describe(`project: ${projectName}`, () => {
     const projectDir = path.resolve(project.projectRoot)
     const outDir = path.resolve(project.projectRoot, project.outDir || 'dist')
-    before(() => {
-      rimraf(outDir)
-      process.chdir(projectDir)
+
+    describe('compile', () => {
+      beforeEach(() => {
+        rimraf(outDir)
+        process.chdir(projectDir)
+      })
+
+      it('should compile', async () => {
+        const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+
+        assert.strictEqual(diagnostics.length, 0)
+
+        const actualFiles: string[] = globby.sync('**/*', {
+          dot: true,
+          cwd: outDir
+        }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
+        actualFiles.sort()
+        const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
+        assert(configJsonIdx > 0, 'expect midway.build.json')
+        actualFiles.splice(configJsonIdx, 1)
+
+        project.outputFiles.sort()
+        assert.deepStrictEqual(actualFiles, project.outputFiles)
+      })
+
+      it('should compile in project', async () => {
+        const { diagnostics } = await compileInProject(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+
+        assert.strictEqual(diagnostics.length, 0)
+
+        const actualFiles: string[] = globby.sync('**/*', {
+          dot: true,
+          cwd: outDir
+        }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
+        actualFiles.sort()
+        const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
+        assert(configJsonIdx > 0, 'expect midway.build.json')
+        actualFiles.splice(configJsonIdx, 1)
+
+        project.outputFiles.sort()
+        assert.deepStrictEqual(actualFiles, project.outputFiles)
+      })
     })
 
-    it('should compile', async () => {
-      const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+    describe('integration', () => {
+      if (project.sourceMapFiles) {
+        it('source map files validation', async () => {
+          const sourceMaps = project.outputFiles.filter(it => it.endsWith('.map'))
+            .map(it => [it, fs.readFileSync(path.resolve(projectDir, it))])
+            .map(([path, content]) => [path, JSON.parse(content)])
+          for (let [filePath, sourceMap] of sourceMaps) {
+            const expectedMappings = project.sourceMapFiles[filePath]
+            if (!expectedMappings) {
+              continue
+            }
+            for (let item of expectedMappings) {
+              assert.ok(sourceMap.sources.indexOf(item) >= 0)
+            }
+          }
+        })
+      }
 
-      assert.strictEqual(diagnostics.length, 0)
-
-      const actualFiles: string[] = globby.sync('**/*', {
-        dot: true,
-        cwd: outDir
-      }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
-      actualFiles.sort()
-      const configJsonIdx = actualFiles.indexOf('dist/midway.build.json')
-      assert(configJsonIdx > 0, 'expect midway.build.json')
-      actualFiles.splice(configJsonIdx, 1)
-
-      project.outputFiles.sort()
-      assert.deepStrictEqual(actualFiles, project.outputFiles)
+      if (project.integration) {
+        it('integration', async () => {
+          await exec(path.resolve(projectDir, project.integration))
+        })
+      }
     })
-
-    if (project.sourceMapFiles) {
-      it('source map files validation', async () => {
-        const sourceMaps = project.outputFiles.filter(it => it.endsWith('.map'))
-          .map(it => [it, fs.readFileSync(path.resolve(projectDir, it))])
-          .map(([path, content]) => [path, JSON.parse(content)])
-        for (let [filePath, sourceMap] of sourceMaps) {
-          const expectedMappings = project.sourceMapFiles[filePath]
-          if (!expectedMappings) {
-            continue
-          }
-          for (let item of expectedMappings) {
-            assert.ok(sourceMap.sources.indexOf(item) >= 0)
-          }
-        }
-      })
-    }
-
-    if (project.integration) {
-      it('integration', async () => {
-        await exec(path.resolve(projectDir, project.integration))
-      })
-    }
   })
 }
 

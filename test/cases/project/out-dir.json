@@ -1,0 +1,9 @@
+{
+  "scenario": "baseline",
+  "projectRoot": "test/cases/projects/out-dir",
+  "outDir": ".build/foo",
+  "outputFiles": [
+    ".build/foo/emit.js",
+    ".build/foo/emit.js.map"
+  ]
+}

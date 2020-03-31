@@ -3,3 +3,6 @@ dist
 .nyc_output
 coverage
 *.tsbuildinfo
+.*
+!.gitignore
+!.npmignore
