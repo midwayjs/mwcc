@@ -1,0 +1,18 @@
+{
+  "scenario": "bundle",
+  "projectRoot": "test/cases/projects/bundle-node-modules",
+  "plugins": {
+    "bundler": {
+      "entries": {
+        "src/entry.ts": "index.js"
+      }
+    }
+  },
+  "outputFiles": [
+    "dist/index.js",
+    "dist/index.js.map"
+  ],
+  "sourceMapFiles": {
+    "dist/index.js.map": ["../src/entry.ts"]
+  }
+}

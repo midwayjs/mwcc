@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as childProcess from 'child_process'
 import { MwccContext, MwccCompilerHost } from '../iface'
 import ncc = require('@midwayjs/ncc')
+import sourceMap from 'source-map'
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
   const bundleOpts = ctx.options.plugins!.bundler!
@@ -12,6 +13,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
     if (ctx.files.indexOf(entry) < 0) {
       throw new Error(`entry(${entry}) not included in compilation.`)
     }
+    const realBuildDir = host.realpath!(ctx.buildDir)
     const resolvedEntry = ctx.getTsOutputPath(entry)
     const targetFilePath = path.resolve(ctx.buildDir, target)
     const { code, map } = await ncc(resolvedEntry, {
@@ -19,6 +21,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
       filename: target,
       sourceMap: true,
       sourceMapRegister: false,
+      sourceMapBasePrefix: '.',
       quiet: true
     })
 
@@ -29,8 +32,13 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
       host.writeFile(targetFilePath, code, false)
       outFiles.push(targetFilePath)
     }
+    const jsonMap = JSON.parse(map)
+    jsonMap.sources = jsonMap.sources.map(it => {
+      return it.replace(realBuildDir, '')
+    })
+    const calibratedMap = await calibrateSourceMaps(ctx, host, jsonMap)
 
-    host.writeFile(`${targetFilePath}.map`, map, false)
+    host.writeFile(`${targetFilePath}.map`, calibratedMap, false)
     outFiles.push(`${targetFilePath}.map`)
   }
 
@@ -87,4 +95,20 @@ function spawn (command: string, args: string[]) {
       resolve()
     })
   })
+}
+
+async function calibrateSourceMaps (ctx: MwccContext, host: MwccCompilerHost, map: any) {
+  const consumer = await new sourceMap.SourceMapConsumer(map)
+  const generator = sourceMap.SourceMapGenerator.fromSourceMap(consumer)
+  for (let source of map.sources) {
+    const sourcePath = map.sourceRoot ? path.join(map.sourceRoot, source) : source
+    const sourceMapPath = path.resolve(ctx.buildDir, sourcePath + '.map')
+    const sourceMapContent = host.readFile(sourceMapPath)
+    if (sourceMapContent == null) {
+      continue
+    }
+    const consumer = await new sourceMap.SourceMapConsumer(sourceMapContent);
+    generator.applySourceMap(consumer)
+  }
+  return generator.toString();
 }

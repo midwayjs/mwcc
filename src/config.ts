@@ -35,8 +35,8 @@ export function mergeCompilerOptions (base: ts.CompilerOptions, target: ts.Compi
    * calibrate source root and source map and output dir
    */
   if (target?.rootDir || target?.outDir) {
-    const absoluteOutDir = target?.outDir && path.resolve(target.outDir) || base.outDir!
-    const absoluteRootDir = target?.rootDir && path.resolve(target.rootDir) || base.rootDir!
+    const absoluteOutDir = target?.outDir && path.resolve(projectDir, target.outDir) || base.outDir!
+    const absoluteRootDir = target?.rootDir && path.resolve(projectDir, target.rootDir) || base.rootDir!
     compilerOptions.sourceRoot = path.relative(absoluteOutDir, absoluteRootDir)
     compilerOptions.outDir = absoluteOutDir
     compilerOptions.rootDir = absoluteRootDir

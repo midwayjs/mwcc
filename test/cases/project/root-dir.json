@@ -1,0 +1,10 @@
+{
+  "projectRoot": "test/cases/projects/root-dir",
+  "outputFiles": [
+    "dist/index.js",
+    "dist/index.js.map"
+  ],
+  "compilerOptions": {
+    "rootDir": "lib"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "projectRoot": "test/cases/projects/source-map-integration",
+  "plugins": {
+    "bundler": {
+      "entries": {
+        "src/entry.ts": "index.js"
+      }
+    }
+  },
+  "outputFiles": [
+    "dist/index.js",
+    "dist/index.js.map"
+  ],
+  "integration": "dist/index.js"
+}
