@@ -53,7 +53,7 @@ export default class Orchestra {
   }
 
   async run () {
-    const compilerOptions: ts.CompilerOptions = { ...this.context.options.compilerOptions }
+    const compilerOptions: ts.CompilerOptions = { ...this.parsedCommandLine.options }
     /**
      * 0. redirect output dir
      */

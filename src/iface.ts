@@ -9,6 +9,17 @@ export interface BundlerOptions {
   codecache: CodeCacheVariant;
 }
 
+export interface CompilerOptionsJsonObject {
+  [key: string]: any
+}
+
+export interface TsConfigJsonObject {
+  compileOnSave?: boolean;
+  compilerOptions?: CompilerOptionsJsonObject;
+  include?: string[];
+  exclude?: string[];
+}
+
 export interface MwccOptions {
   compilerOptions?: ts.CompilerOptions;
   include?: string[];

@@ -1,17 +1,17 @@
 import * as ts from 'typescript'
 import * as path from 'path'
-import { MwccOptions } from './iface'
+import { TsConfigJsonObject, CompilerOptionsJsonObject } from './iface'
 
-export function getDefaultOptions (projectDir: string, outputDir: string = 'dist', rootDir: string = 'src'): MwccOptions {
+export function getDefaultOptions (projectDir: string, outputDir: string = 'dist', rootDir: string = 'src'): TsConfigJsonObject {
   const absoluteOutDir = path.resolve(projectDir, outputDir)
   const absoluteRootDir = path.resolve(projectDir, rootDir)
   return {
     compilerOptions: {
       // language features
-      target: ts.ScriptTarget.ES2018,
-      module: ts.ModuleKind.CommonJS,
-      moduleResolution: ts.ModuleResolutionKind.NodeJs,
-      jsx: ts.JsxEmit.React,
+      target: 'es2018',
+      module: 'commonjs',
+      moduleResolution: 'node',
+      jsx: 'react',
       experimentalDecorators: true,
       emitDecoratorMetadata: true,
       // source maps
@@ -29,7 +29,7 @@ export function getDefaultOptions (projectDir: string, outputDir: string = 'dist
   }
 }
 
-export function mergeCompilerOptions (base: ts.CompilerOptions, target: ts.CompilerOptions | undefined, projectDir: string) {
+export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: CompilerOptionsJsonObject | undefined, projectDir: string) {
   const compilerOptions = Object.assign({}, base, target)
   /**
    * calibrate source root and source map and output dir

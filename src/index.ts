@@ -1,5 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
+import * as ts from 'typescript'
 import Orchestra from './orchestra'
 import { MwccOptions } from './iface'
 import { mergeCompilerOptions, getDefaultOptions, resolveTsConfigFile } from './config'
@@ -10,7 +11,8 @@ export async function compileWithOptions (projectDir: string, outputDir: string,
     options = {}
   }
   const defaultOptions = getDefaultOptions(projectDir, outputDir)
-  const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, options.compilerOptions, projectDir)
+  const targetCli = ts.convertCompilerOptionsFromJson(options.compilerOptions, projectDir)
+  const compilerOptions = mergeCompilerOptions(defaultOptions.compilerOptions!, targetCli.options, projectDir)
 
   const orchestration = new Orchestra(projectDir, { ...options, compilerOptions })
   const { summary, diagnostics } = await orchestration.run()
