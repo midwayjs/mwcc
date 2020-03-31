@@ -58,14 +58,18 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
 
 export function resolveTsConfigFile (projectDir: string, configName?: string): ts.ParsedCommandLine {
   const tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
-  if (tsconfigPath == null) {
-    throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
+  let readConfig
+  if (tsconfigPath != null) {
+    if (tsconfigPath == null) {
+      throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
+    }
+    const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+    if (readResult.error) {
+      throw new Error(`Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`)
+    }
+    readConfig = readResult.config
   }
-  const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
-  if (readResult.error) {
-    throw new Error(`Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`)
-  }
-  const config = { ...readResult.config, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir).compilerOptions!, readResult.config.compilerOptions, projectDir) }
+  const config = { ...readConfig, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir).compilerOptions!, readConfig?.compilerOptions, projectDir) }
   const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }
