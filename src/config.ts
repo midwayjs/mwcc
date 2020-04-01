@@ -92,6 +92,7 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
   const defaultConfig = getDefaultConfig(projectDir, outDir)
   let config = mergeConfigs(defaultConfig, hintConfig, projectDir)
   config = mergeConfigs(config, readConfig, projectDir)
+  config = mergeConfigs(config, { compilerOptions: { outDir } }, projectDir)
   config = mergeConfigs(config, overrideConfig, projectDir)
   return { config, tsconfigPath }
 }

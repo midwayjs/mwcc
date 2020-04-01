@@ -1,0 +1,8 @@
+{
+  "projectRoot": "test/cases/projects/override-out-dir",
+  "outDir": "dist",
+  "outputFiles": [
+    "dist/emit.js",
+    "dist/emit.js.map"
+  ]
+}
