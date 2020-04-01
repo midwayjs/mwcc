@@ -1,0 +1,11 @@
+{
+  "projectRoot": "test/cases/projects/partial-sources",
+  "outputFiles": [
+    "dist/expected/index.js",
+    "dist/expected/index.js.map",
+    "dist/index.js",
+    "dist/index.js.map"
+  ],
+  "include": ["src/expected"],
+  "integration": "dist/expected/index.js"
+}

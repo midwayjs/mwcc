@@ -1,10 +1,12 @@
 import * as ts from 'typescript'
 import * as path from 'path'
-import { TsConfigJsonObject, CompilerOptionsJsonObject } from './iface'
+import { TsConfigJsonObject, CompilerOptionsJsonObject, MwccConfig } from './iface'
+import { extend } from './util'
 
-export function getDefaultOptions (projectDir: string, outDir: string = 'dist', rootDir: string = 'src'): TsConfigJsonObject {
-  const absoluteOutDir = path.resolve(projectDir, outDir)
-  const absoluteRootDir = path.resolve(projectDir, rootDir)
+export function getDefaultConfig (projectDir: string, outDir: string = 'dist', sourceDir: string = 'src'): TsConfigJsonObject {
+  const absoluteRootDir = path.resolve(projectDir)
+  const absoluteOutDir = path.resolve(absoluteRootDir, outDir)
+  const absoluteSourceDir = path.resolve(absoluteRootDir, sourceDir)
   return {
     compilerOptions: {
       // language features
@@ -18,19 +20,20 @@ export function getDefaultOptions (projectDir: string, outDir: string = 'dist', 
       sourceMap: true,
       inlineSourceMap: false,
       inlineSources: false,
+      sourceRoot: path.relative(absoluteOutDir, absoluteSourceDir),
       // directories
-      sourceRoot: path.relative(absoluteOutDir, absoluteRootDir),
       outDir: absoluteOutDir,
-      rootDir: absoluteRootDir,
+      rootDir: absoluteSourceDir, // flatten out dir (i.e. out/src/index.js -> out/index.js)
       // program emit options
       listEmittedFiles: true
     },
+    include: [absoluteSourceDir],
     exclude: ['**/node_modules']
   }
 }
 
-export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: CompilerOptionsJsonObject | undefined, projectDir: string) {
-  const compilerOptions = Object.assign({}, base, target)
+export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: CompilerOptionsJsonObject | undefined, projectDir: string): CompilerOptionsJsonObject {
+  const compilerOptions = extend(base, target)
   /**
    * calibrate source root and source map and output dir
    */
@@ -56,7 +59,21 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
   return compilerOptions
 }
 
-export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string): ts.ParsedCommandLine {
+export function mergeConfigs (base: MwccConfig, target: MwccConfig | undefined, projectDir: string): MwccConfig {
+  const compilerOptions = mergeCompilerOptions(base.compilerOptions!, target?.compilerOptions, projectDir)
+  let include = new Set(base.include!)
+  if (target?.include) {
+    include = new Set([...target.include])
+  }
+  if (target?.compilerOptions?.rootDir && target?.compilerOptions.rootDir !== base.compilerOptions?.rootDir) {
+    include.delete(base.compilerOptions?.rootDir!)
+    include.add(compilerOptions.rootDir)
+  }
+
+  return extend(base, target, { compilerOptions, include: [...include] })
+}
+
+export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig): ts.ParsedCommandLine {
   let tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
   let readConfig
   if (tsconfigPath?.startsWith(projectDir) === false) {
@@ -72,7 +89,9 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
     }
     readConfig = readResult.config
   }
-  const config = { ...readConfig, compilerOptions: mergeCompilerOptions(getDefaultOptions(projectDir, outDir).compilerOptions!, readConfig?.compilerOptions, projectDir) }
+  const defaultConfig = getDefaultConfig(projectDir, outDir)
+  let config = mergeConfigs(defaultConfig, hintConfig, projectDir)
+  config = mergeConfigs(config, readConfig, projectDir)
   const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }

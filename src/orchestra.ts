@@ -1,6 +1,6 @@
 import * as ts from 'typescript'
 
-import { MwccOptions, MwccContext } from './iface'
+import { MwccConfig, MwccContext } from './iface'
 import bundler from './plugin/bundler'
 import fs = require('fs');
 import path = require('path');
@@ -12,10 +12,10 @@ export default class Orchestra {
 
   private parsedCommandLine: ts.ParsedCommandLine;
 
-  constructor (private projectDir: string, private options?: MwccOptions) {
-    const derivedOutputDir = options?.compilerOptions?.outDir ?? 'dist'
+  constructor (private projectDir: string, private config?: MwccConfig) {
+    const derivedOutputDir = config?.compilerOptions?.outDir ?? 'dist'
 
-    const parsedCommandLine = this.parsedCommandLine = ts.parseJsonConfigFileContent(options, ts.sys, projectDir)
+    const parsedCommandLine = this.parsedCommandLine = ts.parseJsonConfigFileContent(config, ts.sys, projectDir)
 
     /**
      * mock paths for bundlers
@@ -26,7 +26,7 @@ export default class Orchestra {
     fs.mkdirSync(buildDir)
 
     const context: MwccContext = this.context = {
-      options: options!,
+      config: config!,
       files: parsedCommandLine.fileNames,
       outFiles: [],
       projectDir,
@@ -78,7 +78,7 @@ export default class Orchestra {
     /**
      * 2. run plugins
      */
-    if (this.options?.plugins?.bundler) {
+    if (this.config?.plugins?.bundler) {
       await bundler(this.context, host)
     }
 
@@ -123,7 +123,7 @@ export default class Orchestra {
 
   generateBuildSummary () {
     return {
-      ...this.context.options,
+      ...this.config,
       build: {
         inputFiles: this.context.files,
         outputFiles: this.context.outFiles

@@ -1,0 +1,7 @@
+{
+  "projectRoot": "test/cases/projects/source-dir",
+  "outputFiles": [
+    "dist/index.js",
+    "dist/index.js.map"
+  ]
+}

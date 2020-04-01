@@ -22,9 +22,9 @@ for (const projectName of projectCases) {
       })
 
       it('should compile', async () => {
-        const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+        const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins, include: project.include, exclude: project.exclude })
 
-        assert.strictEqual(diagnostics.length, 0)
+        assert.deepStrictEqual(diagnostics, [])
 
         const actualFiles: string[] = globby.sync('**/*', {
           dot: true,
@@ -40,9 +40,9 @@ for (const projectName of projectCases) {
       })
 
       it('should compile in project', async () => {
-        const { diagnostics } = await compileInProject(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins })
+        const { diagnostics } = await compileInProject(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins, include: project.include, exclude: project.exclude })
 
-        assert.strictEqual(diagnostics.length, 0)
+        assert.deepStrictEqual(diagnostics, [])
 
         const actualFiles: string[] = globby.sync('**/*', {
           dot: true,

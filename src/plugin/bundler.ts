@@ -5,7 +5,7 @@ import ncc = require('@midwayjs/ncc')
 import sourceMap from 'source-map'
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
-  const bundleOpts = ctx.options.plugins!.bundler!
+  const bundleOpts = ctx.config.plugins!.bundler!
   let outFiles: string[] = []
 
   for (let [entry, target] of Object.entries(bundleOpts.entries)) {

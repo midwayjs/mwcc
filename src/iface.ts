@@ -20,7 +20,7 @@ export interface TsConfigJsonObject {
   exclude?: string[];
 }
 
-export interface MwccOptions {
+export interface MwccConfig {
   compilerOptions?: ts.CompilerOptions;
   include?: string[];
   exclude?: string[];
@@ -29,14 +29,14 @@ export interface MwccOptions {
   };
 }
 
-export interface MwccBuildSummary extends MwccOptions {
+export interface MwccBuildSummary extends MwccConfig {
   build: {
     files: string[],
   };
 }
 
 export interface MwccContext {
-  options: MwccOptions;
+  config: MwccConfig;
   files: string[];
   outFiles: string[];
   projectDir: string;
