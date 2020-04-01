@@ -1,10 +1,11 @@
 {
-  "scenario": "bundle",
   "projectRoot": "test/cases/projects/bundle-node-modules",
-  "plugins": {
-    "bundler": {
-      "entries": {
-        "src/entry.ts": "index.js"
+  "hintConfig": {
+    "plugins": {
+      "bundler": {
+        "entries": {
+          "src/entry.ts": "index.js"
+        }
       }
     }
   },

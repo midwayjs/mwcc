@@ -1,5 +1,4 @@
 {
-  "scenario": "baseline",
   "projectRoot": "test/cases/projects/baseline",
   "outputFiles": [
     "dist/.tsbuildinfo",
@@ -8,7 +7,9 @@
     "dist/decl.js",
     "dist/decl.js.map"
   ],
-  "compilerOptions": {
-    "incremental": true
+  "hintConfig": {
+    "compilerOptions": {
+      "incremental": true
+    }
   }
 }

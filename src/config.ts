@@ -73,7 +73,7 @@ export function mergeConfigs (base: MwccConfig, target: MwccConfig | undefined, 
   return extend(base, target, { compilerOptions, include: [...include] })
 }
 
-export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig) {
+export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig, overrideConfig?: MwccConfig) {
   let tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
   let readConfig
   if (tsconfigPath?.startsWith(projectDir) === false) {
@@ -92,5 +92,6 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
   const defaultConfig = getDefaultConfig(projectDir, outDir)
   let config = mergeConfigs(defaultConfig, hintConfig, projectDir)
   config = mergeConfigs(config, readConfig, projectDir)
+  config = mergeConfigs(config, overrideConfig, projectDir)
   return { config, tsconfigPath }
 }

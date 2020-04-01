@@ -4,7 +4,9 @@
     "dist/index.js",
     "dist/index.js.map"
   ],
-  "compilerOptions": {
-    "rootDir": "lib"
+  "hintConfig": {
+    "compilerOptions": {
+      "rootDir": "lib"
+    }
   }
 }

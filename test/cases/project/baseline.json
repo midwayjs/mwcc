@@ -1,5 +1,4 @@
 {
-  "scenario": "baseline",
   "projectRoot": "test/cases/projects/baseline",
   "outputFiles": [
     "dist/emit.js",

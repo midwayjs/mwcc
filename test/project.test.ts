@@ -21,31 +21,33 @@ for (const projectName of projectCases) {
         process.chdir(projectDir)
       })
 
-      it('should compile', async () => {
-        const { diagnostics } = await compileWithOptions(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins, include: project.include, exclude: project.exclude })
+      if (!project.overrideConfig) {
+        it('should compile', async () => {
+          const { diagnostics } = await compileWithOptions(projectDir, outDir, project.hintConfig)
 
-        assert.deepStrictEqual(diagnostics, [])
+          assert.deepStrictEqual(diagnostics, [])
 
-        const actualFiles: string[] = globby.sync('**/*', {
-          dot: true,
-          cwd: outDir
-        }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
-        actualFiles.sort()
-        const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
-        assert(configJsonIdx > 0, 'expect midway.build.json')
-        actualFiles.splice(configJsonIdx, 1)
+          const actualFiles: string[] = globby.sync('**/*', {
+            dot: true,
+            cwd: outDir
+          }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
+          actualFiles.sort()
+          const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
+          assert(configJsonIdx > 0, 'expect midway.build.json')
+          actualFiles.splice(configJsonIdx, 1)
 
-        project.outputFiles.sort()
-        assert.deepStrictEqual(actualFiles, project.outputFiles)
+          project.outputFiles.sort()
+          assert.deepStrictEqual(actualFiles, project.outputFiles)
 
-        const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
-        assert(midwayBuildJson.compilerOptions != null)
-        assert(midwayBuildJson.compilerOptions.module === 'commonjs')
-        assert(midwayBuildJson.compilerOptions.jsx === 'react')
-      })
+          const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
+          assert(midwayBuildJson.compilerOptions != null)
+          assert(midwayBuildJson.compilerOptions.module === 'commonjs')
+          assert(midwayBuildJson.compilerOptions.jsx === 'react')
+        })
+      }
 
       it('should compile in project', async () => {
-        const { diagnostics } = await compileInProject(projectDir, outDir, { compilerOptions: project.compilerOptions, plugins: project.plugins, include: project.include, exclude: project.exclude })
+        const { diagnostics } = await compileInProject(projectDir, outDir, project.hintConfig, project.overrideConfig)
 
         assert.deepStrictEqual(diagnostics, [])
 

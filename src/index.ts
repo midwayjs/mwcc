@@ -21,13 +21,13 @@ export async function compileWithOptions (projectDir: string, outDir: string, hi
   return compile(projectDir, config)
 }
 
-export async function compileInProject (projectDir: string, outDir: string, options?: MwccConfig) {
-  const { config } = resolveTsConfigFile(projectDir, outDir, undefined, options)
+export async function compileInProject (projectDir: string, outDir: string, hintConfig?: MwccConfig, overrideConfig?: MwccConfig) {
+  const { config } = resolveTsConfigFile(projectDir, outDir, undefined, hintConfig, overrideConfig)
   return compile(projectDir, config)
 }
 
-export const findAndParseTsConfig = function findAndParseTsConfig (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig) {
-  const { config, tsconfigPath } = resolveTsConfigFile(projectDir, outDir, configName, hintConfig)
+export const findAndParseTsConfig = function findAndParseTsConfig (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig, overrideConfig?: MwccConfig) {
+  const { config, tsconfigPath } = resolveTsConfigFile(projectDir, outDir, configName, hintConfig, overrideConfig)
   const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }

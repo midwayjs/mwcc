@@ -1,12 +1,12 @@
 {
-  "projectRoot": "test/cases/projects/partial-sources",
+  "projectRoot": "test/cases/projects/partial-sources-override",
   "outputFiles": [
     "dist/expected/index.js",
     "dist/expected/index.js.map",
     "dist/index.js",
     "dist/index.js.map"
   ],
-  "hintConfig": {
+  "overrideConfig": {
     "include": ["src/expected"]
   },
   "integration": "dist/expected/index.js"
