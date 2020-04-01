@@ -2,5 +2,6 @@
 !/bin
 !/dist
 !/src
+!/script
 !/README.md
 !/package.json

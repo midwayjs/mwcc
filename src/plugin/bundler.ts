@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as childProcess from 'child_process'
 import { MwccContext, MwccCompilerHost } from '../iface'
 import sourceMap from 'source-map'
+import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm'
 import ncc = require('@midwayjs/ncc')
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
@@ -26,7 +27,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
     })
 
     if (bundleOpts.codecache) {
-      const files = await codecache(host, targetFilePath, code)
+      const files = await codecache(host, targetFilePath, code, bundleOpts.codecache)
       outFiles = outFiles.concat(files)
     } else {
       host.writeFile(targetFilePath, code, false)
@@ -45,7 +46,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
   ctx.outFiles = outFiles
 }
 
-async function codecache (host: MwccCompilerHost, targetFilepath: string, code: string) {
+async function codecache (host: MwccCompilerHost, targetFilepath: string, code: string, nodejsVersion: string) {
   const basename = path.basename(targetFilepath, '.js')
   const cachedDataFilePath = path.join(path.dirname(targetFilepath), basename + '.cache')
   const cachedCodeFilePath = path.join(path.dirname(targetFilepath), basename + '.cache.js')
@@ -61,25 +62,33 @@ async function codecache (host: MwccCompilerHost, targetFilepath: string, code: 
   host.writeFile(cachedCodeFilePath, code, false)
   host.writeFile(targetFilepath, cachedEntry, false)
 
-  const execPath = await resolveNodeBinary('node-' + process.version)
+  nodejsVersion = nodejsVersion || 'node-' + process.version
+  const execPath = await resolveNodeBinary(nodejsVersion)
   if (execPath == null) {
-    throw new Error(`Unable to resolve Node.js binary for ${'node-' + process.version}`)
+    throw new Error(`Unable to resolve Node.js binary for ${nodejsVersion}`)
   }
   await spawn(execPath, [path.resolve(__dirname, '../../bin/codecache.js'), cachedCodeFilePath, cachedDataFilePath])
 
   return [cachedDataFilePath, cachedCodeFilePath, targetFilepath]
 }
 
-function resolveNodeBinary (variant: string) {
-  // TODO: resolve node binary with online service?
+async function resolveNodeBinary (variant: string) {
   const match = variant.match(/((?:ali)?node)-v(\d+\.\d+\.\d+(?:-\.+)?)/)
   if (match == null) {
     return null
   }
   if (match[2] !== process.versions[match[1] as keyof typeof process.versions]) {
-    return null
+    return resolveNodeBinaryByTnvm(variant)
   }
   return process.execPath
+}
+
+async function resolveNodeBinaryByTnvm (variant) {
+  const installed = await isVersionInstalled(variant)
+  if (!installed) {
+    await install(variant)
+  }
+  return getExecPathOfVersion(variant)
 }
 
 function spawn (command: string, args: string[]) {

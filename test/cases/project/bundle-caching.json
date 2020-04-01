@@ -12,7 +12,7 @@
         "entries": {
           "src/entry.ts": "index.js"
         },
-        "codecache": "node-v13.11.0"
+        "codecache": "node-v12.16.1"
       }
     }
   },

@@ -1,6 +1,9 @@
 import * as ts from 'typescript'
 
-export type CodeCacheVariant = 'node-v12' | 'node-v10';
+/**
+ * e.g. node-v12.0.0
+ */
+export type CodeCacheVariant = string
 
 export interface BundlerOptions {
   entries: {
