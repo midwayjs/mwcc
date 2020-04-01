@@ -4,7 +4,7 @@ import * as globby from 'globby'
 import * as childProcess from 'child_process'
 
 import { compileWithOptions, compileInProject } from '../src/index'
-import { rimraf, flatMap } from './util'
+import { rimraf } from './util'
 import assert = require('assert')
 
 const projectCases = fs.readdirSync(path.join(__dirname, 'cases/project'))
@@ -37,6 +37,11 @@ for (const projectName of projectCases) {
 
         project.outputFiles.sort()
         assert.deepStrictEqual(actualFiles, project.outputFiles)
+
+        const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
+        assert(midwayBuildJson.compilerOptions != null)
+        assert(midwayBuildJson.compilerOptions.module === 'commonjs')
+        assert(midwayBuildJson.compilerOptions.jsx === 'react')
       })
 
       it('should compile in project', async () => {
@@ -64,12 +69,12 @@ for (const projectName of projectCases) {
           const sourceMaps = project.outputFiles.filter(it => it.endsWith('.map'))
             .map(it => [it, fs.readFileSync(path.resolve(projectDir, it))])
             .map(([path, content]) => [path, JSON.parse(content)])
-          for (let [filePath, sourceMap] of sourceMaps) {
+          for (const [filePath, sourceMap] of sourceMaps) {
             const expectedMappings = project.sourceMapFiles[filePath]
             if (!expectedMappings) {
               continue
             }
-            for (let item of expectedMappings) {
+            for (const item of expectedMappings) {
               assert.ok(sourceMap.sources.indexOf(item) >= 0)
             }
           }

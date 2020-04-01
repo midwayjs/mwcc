@@ -1,8 +1,8 @@
 import * as path from 'path'
 import * as childProcess from 'child_process'
 import { MwccContext, MwccCompilerHost } from '../iface'
-import ncc = require('@midwayjs/ncc')
 import sourceMap from 'source-map'
+import ncc = require('@midwayjs/ncc')
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
   const bundleOpts = ctx.config.plugins!.bundler!
@@ -100,15 +100,15 @@ function spawn (command: string, args: string[]) {
 async function calibrateSourceMaps (ctx: MwccContext, host: MwccCompilerHost, map: any) {
   const consumer = await new sourceMap.SourceMapConsumer(map)
   const generator = sourceMap.SourceMapGenerator.fromSourceMap(consumer)
-  for (let source of map.sources) {
+  for (const source of map.sources) {
     const sourcePath = map.sourceRoot ? path.join(map.sourceRoot, source) : source
     const sourceMapPath = path.resolve(ctx.buildDir, sourcePath + '.map')
     const sourceMapContent = host.readFile(sourceMapPath)
     if (sourceMapContent == null) {
       continue
     }
-    const consumer = await new sourceMap.SourceMapConsumer(sourceMapContent);
+    const consumer = await new sourceMap.SourceMapConsumer(sourceMapContent)
     generator.applySourceMap(consumer)
   }
-  return generator.toString();
+  return generator.toString()
 }

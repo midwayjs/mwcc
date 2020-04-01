@@ -38,8 +38,8 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
    * calibrate source root and source map and output dir
    */
   if (target?.rootDir || target?.outDir) {
-    const absoluteOutDir = target?.outDir && path.resolve(projectDir, target.outDir) || base.outDir!
-    const absoluteRootDir = target?.rootDir && path.resolve(projectDir, target.rootDir) || base.rootDir!
+    const absoluteOutDir = target?.outDir ? path.resolve(projectDir, target.outDir) : base.outDir!
+    const absoluteRootDir = target?.rootDir ? path.resolve(projectDir, target.rootDir) : base.rootDir!
     compilerOptions.sourceRoot = path.relative(absoluteOutDir, absoluteRootDir)
     compilerOptions.outDir = absoluteOutDir
     compilerOptions.rootDir = absoluteRootDir
@@ -73,7 +73,7 @@ export function mergeConfigs (base: MwccConfig, target: MwccConfig | undefined, 
   return extend(base, target, { compilerOptions, include: [...include] })
 }
 
-export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig): ts.ParsedCommandLine {
+export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig) {
   let tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
   let readConfig
   if (tsconfigPath?.startsWith(projectDir) === false) {
@@ -92,6 +92,5 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
   const defaultConfig = getDefaultConfig(projectDir, outDir)
   let config = mergeConfigs(defaultConfig, hintConfig, projectDir)
   config = mergeConfigs(config, readConfig, projectDir)
-  const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
-  return cli
+  return { config, tsconfigPath }
 }

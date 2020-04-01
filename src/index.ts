@@ -3,14 +3,9 @@ import * as path from 'path'
 import * as ts from 'typescript'
 import Orchestra from './orchestra'
 import { MwccConfig } from './iface'
-import { mergeCompilerOptions, getDefaultConfig, resolveTsConfigFile, mergeConfigs } from './config'
-import { extend } from './util'
+import { getDefaultConfig, resolveTsConfigFile, mergeConfigs } from './config'
 
-export async function compileWithOptions (projectDir: string, outDir: string, hintConfig?: MwccConfig) {
-  projectDir = path.resolve(projectDir)
-  const defaultConfig = getDefaultConfig(projectDir, outDir)
-  const config =  mergeConfigs(defaultConfig, hintConfig, projectDir)
-
+async function compile (projectDir: string, config: MwccConfig) {
   const orchestration = new Orchestra(projectDir, config)
   const { summary, diagnostics } = await orchestration.run()
 
@@ -18,9 +13,21 @@ export async function compileWithOptions (projectDir: string, outDir: string, hi
   return { summary, diagnostics }
 }
 
-export async function compileInProject (projectDir: string, outDir: string, options?: MwccConfig) {
-  const cli = resolveTsConfigFile(projectDir, outDir, undefined, options)
-  return compileWithOptions(projectDir, outDir, extend(options, { compilerOptions: cli.options, exclude: cli.raw.exclude, include: cli.raw.include }))
+export async function compileWithOptions (projectDir: string, outDir: string, hintConfig?: MwccConfig) {
+  projectDir = path.resolve(projectDir)
+  const defaultConfig = getDefaultConfig(projectDir, outDir)
+  const config = mergeConfigs(defaultConfig, hintConfig, projectDir)
+
+  return compile(projectDir, config)
 }
 
-export const findAndParseTsConfig = resolveTsConfigFile
+export async function compileInProject (projectDir: string, outDir: string, options?: MwccConfig) {
+  const { config } = resolveTsConfigFile(projectDir, outDir, undefined, options)
+  return compile(projectDir, config)
+}
+
+export const findAndParseTsConfig = function findAndParseTsConfig (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig) {
+  const { config, tsconfigPath } = resolveTsConfigFile(projectDir, outDir, configName, hintConfig)
+  const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
+  return cli
+}

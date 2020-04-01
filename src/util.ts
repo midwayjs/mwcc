@@ -6,7 +6,7 @@ export function extend (...args) {
     if (typeof current !== 'object') {
       return previous
     }
-    for (let [key, val] of Object.entries(current)) {
+    for (const [key, val] of Object.entries(current)) {
       if (val === undefined) {
         continue
       }

@@ -7,8 +7,8 @@ if (process.env.CHILD) {
   })()
 }
 
-const {stdout, stderr} = childProcess.spawnSync(process.execPath, ['-r', 'source-map-support/register', __filename], {
-  env: {...process.env, CHILD: 'YES' },
+const { stdout, stderr } = childProcess.spawnSync(process.execPath, ['-r', 'source-map-support/register', __filename], {
+  env: { ...process.env, CHILD: 'YES' },
   encoding: 'utf8'
 })
 
