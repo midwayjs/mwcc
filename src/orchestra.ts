@@ -65,6 +65,7 @@ export default class Orchestra {
     const program = ts.createProgram(this.context.files, compilerOptions, host)
     const emitResult = program.emit()
     this.context.outFiles = emitResult.emittedFiles ?? []
+    this.calibrateSourceRoots(host)
 
     const allDiagnostics = ts
       .getPreEmitDiagnostics(program)
@@ -134,4 +135,31 @@ export default class Orchestra {
       }
     }
   }
+
+  // Refer to issue https://github.com/microsoft/TypeScript/issues/31873 for more info
+  private calibrateSourceRoots (host: ts.CompilerHost) {
+    const sourceRoot = this.parsedCommandLine.options.sourceRoot
+    if (sourceRoot == null || !sourceRoot) {
+      return
+    }
+    this.context.outFiles.filter(it => it.endsWith('.map')).forEach(it => {
+      const content = host.readFile(it)
+      if (content == null) {
+        return
+      }
+      const json = safeJsonParse(content)
+      if (json == null || json.sourceRoot == null) {
+        return
+      }
+      const calibratedRoot = path.join(path.relative(path.dirname(it), this.context.buildDir), sourceRoot)
+      json.sourceRoot = calibratedRoot
+      host.writeFile(it, JSON.stringify(json), false)
+    })
+  }
+}
+
+function safeJsonParse (str: string): any {
+  try {
+    return JSON.parse(str)
+  } catch {}
 }

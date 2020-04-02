@@ -40,9 +40,11 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
   if (target?.rootDir || target?.outDir) {
     const absoluteOutDir = target?.outDir ? path.resolve(projectDir, target.outDir) : base.outDir!
     const absoluteRootDir = target?.rootDir ? path.resolve(projectDir, target.rootDir) : base.rootDir!
-    compilerOptions.sourceRoot = path.relative(absoluteOutDir, absoluteRootDir)
     compilerOptions.outDir = absoluteOutDir
     compilerOptions.rootDir = absoluteRootDir
+    if (target?.compilerOptions?.sourceRoot == null) {
+      compilerOptions.sourceRoot = path.relative(absoluteOutDir, absoluteRootDir)
+    }
   }
 
   if (target?.inlineSourceMap) {
