@@ -5,6 +5,7 @@
   "main": "dist/index",
   "typings": "dist/index.d.ts",
   "scripts": {
+    "prepublish": "npm run build",
     "lint": "standardx '**/*.[tj]s'",
     "build": "tsc -p .",
     "test": "mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
