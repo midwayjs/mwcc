@@ -61,7 +61,12 @@ export class TnvmAgent {
   }
 
   private findBash () {
-    const path = childProcess.execSync('type -p bash', { encoding: 'utf8' })
-    return path.trim()
+    try {
+      const path = childProcess.execSync('type -p bash', { encoding: 'utf8' })
+      return path.trim()
+    } catch {
+      const path = childProcess.execSync('which bash', { encoding: 'utf8' })
+      return path.trim()
+    }
   }
 }
