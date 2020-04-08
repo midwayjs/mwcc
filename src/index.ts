@@ -1,4 +1,3 @@
-import * as fs from 'fs'
 import * as path from 'path'
 import * as ts from 'typescript'
 import Orchestra from './orchestra'
@@ -9,7 +8,7 @@ async function compile (projectDir: string, config: MwccConfig) {
   const orchestration = new Orchestra(projectDir, config)
   const { summary, diagnostics } = await orchestration.run()
 
-  fs.writeFileSync(path.join(orchestration.context.derivedOutputDir, 'midway.build.json'), JSON.stringify(summary, null, 2))
+  ts.sys.writeFile(path.join(orchestration.context.derivedOutputDir, 'midway.build.json'), JSON.stringify(summary, null, 2))
   return { summary, diagnostics }
 }
 

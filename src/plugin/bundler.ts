@@ -22,7 +22,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
       filename: target,
       sourceMap: true,
       sourceMapRegister: false,
-      sourceMapBasePrefix: '.',
+      sourceMapBasePrefix: '',
       quiet: true
     })
 
@@ -35,7 +35,10 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
     }
     const jsonMap = JSON.parse(map)
     jsonMap.sources = jsonMap.sources.map(it => {
-      return it.replace(realBuildDir, '')
+      if (!path.isAbsolute(it)) {
+        return path.relative(ctx.config.compilerOptions?.rootDir!, it)
+      }
+      return it.replace(realBuildDir, '/')
     })
     const calibratedMap = await calibrateSourceMaps(ctx, host, jsonMap)
 
@@ -108,16 +111,17 @@ function spawn (command: string, args: string[]) {
 
 async function calibrateSourceMaps (ctx: MwccContext, host: MwccCompilerHost, map: any) {
   const consumer = await new sourceMap.SourceMapConsumer(map)
+  consumer.sourceRoot = ctx.config.compilerOptions?.sourceRoot!
   const generator = sourceMap.SourceMapGenerator.fromSourceMap(consumer)
   for (const source of map.sources) {
-    const sourcePath = map.sourceRoot ? path.join(map.sourceRoot, source) : source
-    const sourceMapPath = path.resolve(ctx.buildDir, sourcePath + '.map')
+    const sourcePath = path.join(ctx.config.compilerOptions?.sourceRoot!, source)
+    const sourceMapPath = path.resolve(ctx.config.compilerOptions?.rootDir!, sourcePath + '.map')
     const sourceMapContent = host.readFile(sourceMapPath)
     if (sourceMapContent == null) {
       continue
     }
     const consumer = await new sourceMap.SourceMapConsumer(sourceMapContent)
-    generator.applySourceMap(consumer)
+    generator.applySourceMap(consumer, sourcePath)
   }
   return generator.toString()
 }

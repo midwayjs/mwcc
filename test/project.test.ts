@@ -17,51 +17,32 @@ for (const projectName of projectCases) {
 
     describe('compile', () => {
       beforeEach(() => {
-        rimraf(outDir)
+        if (!project.hintConfig?.compilerOptions?.incremental) {
+          rimraf(outDir)
+        }
         process.chdir(projectDir)
       })
 
       if (!project.overrideConfig) {
         it('should compile', async () => {
           const { diagnostics } = await compileWithOptions(projectDir, outDir, project.hintConfig)
-
           assert.deepStrictEqual(diagnostics, [])
 
-          const actualFiles: string[] = globby.sync('**/*', {
-            dot: true,
-            cwd: outDir
-          }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
-          actualFiles.sort()
-          const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
-          assert(configJsonIdx > 0, 'expect midway.build.json')
-          actualFiles.splice(configJsonIdx, 1)
-
-          project.outputFiles.sort()
-          assert.deepStrictEqual(actualFiles, project.outputFiles)
-
-          const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
-          assert(midwayBuildJson.compilerOptions != null)
-          assert(midwayBuildJson.compilerOptions.module === 'commonjs')
-          assert(midwayBuildJson.compilerOptions.jsx === 'react')
+          assertOutputFiles(projectDir, outDir, project)
+          if (project.hintConfig?.compilerOptions?.incremental) {
+            assertIncremental(path.join(outDir, '.tsbuildinfo'))
+          }
         })
       }
 
       it('should compile in project', async () => {
         const { diagnostics } = await compileInProject(projectDir, outDir, project.hintConfig, project.overrideConfig)
-
         assert.deepStrictEqual(diagnostics, [])
 
-        const actualFiles: string[] = globby.sync('**/*', {
-          dot: true,
-          cwd: outDir
-        }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
-        actualFiles.sort()
-        const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
-        assert(configJsonIdx > 0, 'expect midway.build.json')
-        actualFiles.splice(configJsonIdx, 1)
-
-        project.outputFiles.sort()
-        assert.deepStrictEqual(actualFiles, project.outputFiles)
+        assertOutputFiles(projectDir, outDir, project)
+        if (project.hintConfig?.compilerOptions?.incremental) {
+          assertIncremental(path.join(outDir, '.tsbuildinfo'))
+        }
       })
     })
 
@@ -76,8 +57,9 @@ for (const projectName of projectCases) {
             if (!expectedMappings) {
               continue
             }
+            const sources = sourceMap.sources.map(it => path.join(sourceMap.sourceRoot, it))
             for (const item of expectedMappings) {
-              assert.ok(sourceMap.sources.indexOf(item) >= 0)
+              assert.ok(sources.indexOf(item) >= 0)
             }
           }
         })
@@ -119,4 +101,33 @@ async function exec (file: string) {
       resolve()
     })
   })
+}
+
+function assertIncremental (buildInfoPath) {
+  const buildInfoJson = fs.readFileSync(buildInfoPath, 'utf8')
+  const buildInfo = JSON.parse(buildInfoJson)
+  assert(buildInfo)
+  assert.strictEqual(buildInfo.version, require('typescript/package.json').version)
+  assert(buildInfo.program)
+  assert(buildInfo.program.fileInfos)
+}
+
+function assertOutputFiles (projectDir, outDir, project) {
+  const actualFiles: string[] = globby.sync('**/*', {
+    ignore: ['.mwcc-cache'],
+    dot: true,
+    cwd: outDir
+  }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
+  actualFiles.sort()
+  const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
+  assert(configJsonIdx > 0, 'expect midway.build.json')
+  actualFiles.splice(configJsonIdx, 1)
+
+  project.outputFiles.sort()
+  assert.deepStrictEqual(actualFiles, project.outputFiles)
+
+  const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
+  assert(midwayBuildJson.compilerOptions != null)
+  assert(midwayBuildJson.compilerOptions.module === 'commonjs')
+  assert(midwayBuildJson.compilerOptions.jsx === 'react')
 }

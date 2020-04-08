@@ -20,10 +20,7 @@ export default class Orchestra {
     /**
      * mock paths for bundlers
      */
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mwcc-'))
-    fs.symlinkSync(path.join(projectDir, 'node_modules'), path.join(tempDir, 'node_modules'))
-    const buildDir = path.join(tempDir, 'build')
-    fs.mkdirSync(buildDir)
+    const buildDir = path.join(derivedOutputDir, '.mwcc-cache')
 
     const context: MwccContext = this.context = {
       config: config!,
@@ -61,14 +58,14 @@ export default class Orchestra {
     /**
      * 1. compile TypeScript files
      */
-    const host = ts.createCompilerHost(compilerOptions)
-    const program = ts.createProgram(this.context.files, compilerOptions, host)
+    const host = compilerOptions.incremental ? ts.createIncrementalCompilerHost(compilerOptions) : ts.createCompilerHost(compilerOptions)
+    const program = compilerOptions.incremental? ts.createIncrementalProgram({ rootNames: this.context.files, host, options: compilerOptions }) : ts.createProgram(this.context.files, compilerOptions, host)
     const emitResult = program.emit()
     this.context.outFiles = emitResult.emittedFiles ?? []
     this.calibrateSourceRoots(host)
 
     const allDiagnostics = ts
-      .getPreEmitDiagnostics(program)
+      .getPreEmitDiagnostics(program as ts.Program/** BuilderProgram is sufficient here */)
       .concat(emitResult.diagnostics)
 
     const reporter = this.getDiagnosticReporter()
@@ -162,4 +159,12 @@ function safeJsonParse (str: string): any {
   try {
     return JSON.parse(str)
   } catch {}
+}
+
+function safeStat (path: string) {
+  try {
+    return fs.statSync(path)
+  } catch {
+    return
+  }
 }
