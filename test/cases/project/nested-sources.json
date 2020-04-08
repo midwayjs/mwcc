@@ -6,7 +6,7 @@
     "dist/foo/decl.js",
     "dist/foo/decl.js.map"
   ],
-  "hintConfig": {
+  "overrideConfig": {
     "include": ["src/foo"]
   }
 }
