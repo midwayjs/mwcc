@@ -52,13 +52,13 @@ async function codecache (host: MwccCompilerHost, targetFilepath: string, code: 
   const cachedCodeFilePath = path.join(path.dirname(targetFilepath), basename + '.cache.js')
 
   const columnOffset = -'(function (exports, require, module, __filename, __dirname) { '.length
-  const cachedEntry =
-    `const { readFileSync, writeFileSync } = require('fs'), { Script } = require('vm'), { wrap } = require('module');
-     const source = readFileSync(__dirname + '/${basename}.cache.js', 'utf-8');
-     const cachedData = !process.pkg && require('process').platform !== 'win32' && readFileSync(__dirname + '/${basename}.cache');
-     const scriptOpts = { filename: '${basename}.cache.js', columnOffset: ${columnOffset} }
-     const script = new Script(wrap(source), cachedData ? Object.assign({ cachedData }, scriptOpts) : scriptOpts);
-     (script.runInThisContext())(exports, require, module, __filename, __dirname);\n`
+  const cachedEntry = `const { readFileSync } = require('fs'), { Script } = require('vm'), { wrap } = require('module');
+const basename = __dirname + '/${basename}';
+const source = readFileSync(basename + '.cache.js', 'utf-8');
+const cachedData = !process.pkg && require('process').platform !== 'win32' && readFileSync(basename + '.cache');
+const scriptOpts = { filename: basename + '.cache.js', columnOffset: ${columnOffset} }
+const script = new Script(wrap(source), cachedData ? Object.assign({ cachedData }, scriptOpts) : scriptOpts);
+(script.runInThisContext())(exports, require, module, __filename, __dirname);\n`
   host.writeFile(cachedCodeFilePath, code, false)
   host.writeFile(targetFilepath, cachedEntry, false)
 
