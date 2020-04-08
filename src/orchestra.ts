@@ -50,6 +50,7 @@ export default class Orchestra {
   }
 
   async run () {
+    const startTime = Date.now()
     const compilerOptions: ts.CompilerOptions = { ...this.parsedCommandLine.options }
     /**
      * 0. redirect output dir
@@ -84,7 +85,8 @@ export default class Orchestra {
      * -1. finalize output files
      */
     this.finalizeFileSystem(host)
-    const summary = this.generateBuildSummary()
+    const endTime = Date.now()
+    const summary = this.generateBuildSummary(endTime - startTime)
     return { summary, diagnostics: allDiagnostics }
   }
 
@@ -119,10 +121,11 @@ export default class Orchestra {
     })
   }
 
-  generateBuildSummary () {
+  generateBuildSummary (buildDuration: number) {
     return {
       ...this.config,
       build: {
+        duration: buildDuration,
         inputFiles: this.context.files,
         outputFiles: this.context.outFiles
       },
