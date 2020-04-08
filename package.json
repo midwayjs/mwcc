@@ -1,6 +1,6 @@
 {
   "name": "@midwayjs/mwcc",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Midway Compiler Collection",
   "main": "dist/index",
   "typings": "dist/index.d.ts",
