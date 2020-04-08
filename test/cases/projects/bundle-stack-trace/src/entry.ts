@@ -5,7 +5,6 @@ const path = require('path');
 (function main () {
   if (process.env.CHILD !== 'stack-trace') {
     const cp = childProcess.fork(__filename, [], {
-      execArgv: ['--enable-source-maps'],
       stdio: 'pipe',
       env: Object.assign({}, process.env, {
         CHILD: 'stack-trace'
