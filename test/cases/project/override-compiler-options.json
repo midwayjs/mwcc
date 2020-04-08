@@ -1,0 +1,9 @@
+{
+  "projectRoot": "test/cases/projects/override-compiler-options",
+  "outDir": "dist",
+  "outputFiles": [
+    "dist/emit.js",
+    "dist/emit.js.map"
+  ],
+  "integration": "dist/emit.js"
+}

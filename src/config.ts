@@ -2,6 +2,7 @@ import * as ts from 'typescript'
 import * as path from 'path'
 import { TsConfigJsonObject, CompilerOptionsJsonObject, MwccConfig } from './iface'
 import { extend } from './util'
+import * as logger from './logger'
 
 export function getDefaultConfig (projectDir: string, outDir: string = 'dist', sourceDir: string = 'src'): TsConfigJsonObject {
   const absoluteRootDir = path.resolve(projectDir)
@@ -50,15 +51,13 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
   if (target?.inlineSourceMap) {
     delete compilerOptions.sourceMap
   }
-  if (target?.out || target?.outFile) {
-    delete compilerOptions.out
-    delete compilerOptions.outFile
-    // TODO: diagnostics warnings.
-  }
-  if (compilerOptions.rootDirs != null) {
-    delete compilerOptions.rootDirs
-    // TODO: diagnostics warnings.
-  }
+  ;['out', 'outFile', 'rootDirs', ['module', 'commonjs']].forEach(key => {
+    if (Array.isArray(key)) {
+      overrideCompilerOptions(target, compilerOptions, key[0], key[1])
+    } else {
+      overrideCompilerOptions(target, compilerOptions, key)
+    }
+  })
   if (compilerOptions.incremental && compilerOptions.tsBuildInfoFile == null) {
     compilerOptions.tsBuildInfoFile = path.join(compilerOptions.outDir!, '.tsbuildinfo')
   }
@@ -101,4 +100,22 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
   config = mergeConfigs(config, { compilerOptions: { outDir } }, projectDir)
   config = mergeConfigs(config, overrideConfig, projectDir)
   return { config, tsconfigPath }
+}
+
+function overrideCompilerOptions (target: CompilerOptionsJsonObject | undefined, compilerOptions: CompilerOptionsJsonObject, key: string, val?: any) {
+  if (target?.[key] == null) {
+    return
+  }
+  if (typeof target[key] !== "string" && target[key] === val) {
+    return
+  }
+  if (typeof target[key] === 'string' && target[key].toLowerCase() === val) {
+    return
+  }
+  logger.warning(`override compilerOptions.out with '${val}'`)
+  if (val == null) {
+    delete compilerOptions[key]
+  } else {
+    compilerOptions[key] = val
+  }
 }
