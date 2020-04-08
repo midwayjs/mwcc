@@ -24,10 +24,11 @@ export interface TsConfigJsonObject {
 }
 
 export interface MwccConfig {
-  compilerOptions?: ts.CompilerOptions;
+  compilerOptions?: CompilerOptionsJsonObject;
   include?: string[];
   exclude?: string[];
-  plugins?: {
+  features?: {
+    tsc?: boolean,
     bundler?: BundlerOptions,
   };
 }

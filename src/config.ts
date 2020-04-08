@@ -1,20 +1,24 @@
 import * as ts from 'typescript'
 import * as path from 'path'
-import { TsConfigJsonObject, CompilerOptionsJsonObject, MwccConfig } from './iface'
+import { CompilerOptionsJsonObject, MwccConfig } from './iface'
 import { extend } from './util'
 import * as logger from './logger'
 
-export function getDefaultConfig (projectDir: string, outDir: string = 'dist', sourceDir: string = 'src'): TsConfigJsonObject {
+export function getDefaultConfig (projectDir: string, outDir: string = 'dist', sourceDir: string = 'src'): MwccConfig {
   const absoluteRootDir = path.resolve(projectDir)
   const absoluteOutDir = path.resolve(absoluteRootDir, outDir)
   const absoluteSourceDir = path.resolve(absoluteRootDir, sourceDir)
   return {
+    features: {
+      tsc: true
+    },
     compilerOptions: {
       // language features
       target: 'es2018',
       module: 'commonjs',
       moduleResolution: 'node',
       jsx: 'react',
+      allowJs: true,
       experimentalDecorators: true,
       emitDecoratorMetadata: true,
       // source maps
@@ -75,7 +79,9 @@ export function mergeConfigs (base: MwccConfig, target: MwccConfig | undefined, 
     include.add(compilerOptions.rootDir)
   }
 
-  return extend(base, target, { compilerOptions, include: [...include] })
+  const features = extend(base.features, target?.features)
+
+  return extend(base, target, { compilerOptions, include: [...include], features })
 }
 
 export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig, overrideConfig?: MwccConfig) {
@@ -106,7 +112,7 @@ function overrideCompilerOptions (target: CompilerOptionsJsonObject | undefined,
   if (target?.[key] == null) {
     return
   }
-  if (typeof target[key] !== "string" && target[key] === val) {
+  if (typeof target[key] !== 'string' && target[key] === val) {
     return
   }
   if (typeof target[key] === 'string' && target[key].toLowerCase() === val) {

@@ -7,10 +7,10 @@
     "dist/index.js.map"
   ],
   "hintConfig": {
-    "plugins": {
+    "features": {
       "bundler": {
         "entries": {
-          "src/entry.ts": "index.js"
+          "src/entry.js": "index.js"
         },
         "codecache": "node-v12.16.1"
       }

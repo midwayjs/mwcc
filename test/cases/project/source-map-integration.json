@@ -1,7 +1,7 @@
 {
   "projectRoot": "test/cases/projects/source-map-integration",
   "hintConfig": {
-    "plugins": {
+    "features": {
       "bundler": {
         "entries": {
           "src/entry.ts": "index.js"

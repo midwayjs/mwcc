@@ -1,7 +1,7 @@
 {
   "projectRoot": "test/cases/projects/bundle-node-modules",
   "hintConfig": {
-    "plugins": {
+    "features": {
       "bundler": {
         "entries": {
           "src/entry.ts": "index.js"

@@ -1,5 +1,5 @@
 {
-  "projectRoot": "test/cases/projects/bundle",
+  "projectRoot": "test/cases/projects/bundle-stack-trace",
   "outputFiles": [
     "dist/index.js",
     "dist/index.cache.js",
@@ -8,9 +8,10 @@
   ],
   "hintConfig": {
     "features": {
+      "tsc": false,
       "bundler": {
         "entries": {
-          "src/entry.ts": "index.js"
+          "src/entry.js": "index.js"
         },
         "codecache": "node-v12.16.1"
       }

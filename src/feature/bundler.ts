@@ -6,7 +6,7 @@ import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm'
 import ncc = require('@midwayjs/ncc')
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
-  const bundleOpts = ctx.config.plugins!.bundler!
+  const bundleOpts = ctx.config.features!.bundler!
   let outFiles: string[] = []
 
   for (let [entry, target] of Object.entries(bundleOpts.entries)) {
@@ -15,7 +15,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
       throw new Error(`entry(${entry}) not included in compilation.`)
     }
     const realBuildDir = host.realpath!(ctx.buildDir)
-    const resolvedEntry = ctx.getTsOutputPath(entry)
+    const resolvedEntry = ctx.config.features?.tsc ? ctx.getTsOutputPath(entry) : path.resolve(ctx.projectDir, entry)
     const targetFilePath = path.resolve(ctx.buildDir, target)
     const { code, map } = await ncc(resolvedEntry, {
       cache: false,

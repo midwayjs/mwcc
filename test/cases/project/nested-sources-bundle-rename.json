@@ -6,7 +6,7 @@
   ],
   "hintConfig": {
     "include": ["src/foo"],
-    "plugins": {
+    "features": {
       "bundler": {
         "entries": {
           "src/foo/emit.ts": "foo/index.js"

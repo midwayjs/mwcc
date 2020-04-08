@@ -1,10 +1,8 @@
 import * as ts from 'typescript'
 
 import { MwccConfig, MwccContext } from './iface'
-import bundler from './plugin/bundler'
-import fs = require('fs');
+import bundler from './feature/bundler'
 import path = require('path');
-import os = require('os');
 import assert = require('assert');
 
 export default class Orchestra {
@@ -56,28 +54,32 @@ export default class Orchestra {
      * 0. redirect output dir
      */
     compilerOptions.outDir = this.context.buildDir
+
+    const host = compilerOptions.incremental ? ts.createIncrementalCompilerHost(compilerOptions) : ts.createCompilerHost(compilerOptions)
+    let allDiagnostics: ts.Diagnostic[] = []
     /**
      * 1. compile TypeScript files
      */
-    const host = compilerOptions.incremental ? ts.createIncrementalCompilerHost(compilerOptions) : ts.createCompilerHost(compilerOptions)
-    const program = compilerOptions.incremental? ts.createIncrementalProgram({ rootNames: this.context.files, host, options: compilerOptions }) : ts.createProgram(this.context.files, compilerOptions, host)
-    const emitResult = program.emit()
-    this.context.outFiles = emitResult.emittedFiles ?? []
-    this.calibrateSourceRoots(host)
+    if (this.config?.features?.tsc) {
+      const program = compilerOptions.incremental ? ts.createIncrementalProgram({ rootNames: this.context.files, host, options: compilerOptions }) : ts.createProgram(this.context.files, compilerOptions, host)
+      const emitResult = program.emit()
+      this.context.outFiles = emitResult.emittedFiles ?? []
+      this.calibrateSourceRoots(host)
 
-    const allDiagnostics = ts
-      .getPreEmitDiagnostics(program as ts.Program/** BuilderProgram is sufficient here */)
-      .concat(emitResult.diagnostics)
+      allDiagnostics = ts
+        .getPreEmitDiagnostics(program as ts.Program/** BuilderProgram is sufficient here */)
+        .concat(emitResult.diagnostics)
 
-    const reporter = this.getDiagnosticReporter()
+      const reporter = this.getDiagnosticReporter()
 
-    ts.sortAndDeduplicateDiagnostics(allDiagnostics)
-      .forEach(reporter)
+      ts.sortAndDeduplicateDiagnostics(allDiagnostics)
+        .forEach(reporter)
+    }
 
     /**
-     * 2. run plugins
+     * 2. bundler
      */
-    if (this.config?.plugins?.bundler) {
+    if (this.config?.features?.bundler) {
       await bundler(this.context, host)
     }
 
@@ -162,12 +164,4 @@ function safeJsonParse (str: string): any {
   try {
     return JSON.parse(str)
   } catch {}
-}
-
-function safeStat (path: string) {
-  try {
-    return fs.statSync(path)
-  } catch {
-    return
-  }
 }
