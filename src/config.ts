@@ -55,6 +55,10 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
     delete compilerOptions.outFile
     // TODO: diagnostics warnings.
   }
+  if (compilerOptions.rootDirs != null) {
+    delete compilerOptions.rootDirs
+    // TODO: diagnostics warnings.
+  }
   if (compilerOptions.incremental && compilerOptions.tsBuildInfoFile == null) {
     compilerOptions.tsBuildInfoFile = path.join(compilerOptions.outDir!, '.tsbuildinfo')
   }
