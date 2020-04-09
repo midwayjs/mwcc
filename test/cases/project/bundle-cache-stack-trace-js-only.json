@@ -4,7 +4,7 @@
     "dist/index.js",
     "dist/index.cache.js",
     "dist/index.cache",
-    "dist/index.js.map"
+    "dist/index.cache.js.map"
   ],
   "hintConfig": {
     "features": {

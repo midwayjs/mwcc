@@ -20,7 +20,8 @@
   "files": [
     "bin",
     "dist",
-    "src"
+    "src",
+    "script"
   ],
   "license": "MIT",
   "eslintConfig": {

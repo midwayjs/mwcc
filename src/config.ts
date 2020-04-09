@@ -64,7 +64,7 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
     ['emitBOM', false],
     ['listEmittedFiles', true],
     ['experimentalDecorators', true],
-    ['emitDecoratorMetadata', true],
+    ['emitDecoratorMetadata', true]
   ].forEach(key => {
     if (Array.isArray(key)) {
       overrideCompilerOptions(target, compilerOptions, key[0] as string, key[1])

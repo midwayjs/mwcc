@@ -5,7 +5,8 @@ import sourceMap from 'source-map'
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm'
 import ncc = require('@midwayjs/ncc')
 
-function staticAssert(condition: any): asserts condition {  }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function staticAssert (condition: any): asserts condition {}
 
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
   const bundleOpts = ctx.config.features!.bundler!
@@ -38,13 +39,6 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
       quiet: true
     })
 
-    if (bundleOpts.codecache) {
-      const files = await codecache(host, targetFilePath, code, bundleOpts.codecache)
-      outFiles = outFiles.concat(files)
-    } else {
-      host.writeFile(targetFilePath, code, false)
-      outFiles.push(targetFilePath)
-    }
     const jsonMap = JSON.parse(map)
     jsonMap.sources = jsonMap.sources.map(it => {
       if (!path.isAbsolute(it)) {
@@ -54,8 +48,17 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
     })
     const calibratedMap = await calibrateSourceMaps(ctx, host, jsonMap)
 
-    host.writeFile(`${targetFilePath}.map`, calibratedMap, false)
-    outFiles.push(`${targetFilePath}.map`)
+    if (bundleOpts.codecache) {
+      const [cachedDataFilePath, cachedCodeFilePath, targetFilepath] = await codecache(host, targetFilePath, code, bundleOpts.codecache)
+      outFiles = outFiles.concat([cachedDataFilePath, cachedCodeFilePath, targetFilepath])
+      host.writeFile(`${cachedCodeFilePath}.map`, calibratedMap, false)
+      outFiles.push(`${cachedCodeFilePath}.map`)
+    } else {
+      host.writeFile(targetFilePath, code, false)
+      outFiles.push(targetFilePath)
+      host.writeFile(`${targetFilePath}.map`, calibratedMap, false)
+      outFiles.push(`${targetFilePath}.map`)
+    }
   }
 
   ctx.outFiles = outFiles
