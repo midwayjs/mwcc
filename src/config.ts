@@ -51,9 +51,19 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
   if (target?.inlineSourceMap) {
     delete compilerOptions.sourceMap
   }
-  ;['out', 'outFile', 'rootDirs', ['module', 'commonjs']].forEach(key => {
+  ;[
+    'out',
+    'outFile',
+    'rootDirs',
+    ['module', 'commonjs'],
+    ['importHelpers', false],
+    ['emitBOM', false],
+    ['listEmittedFiles', true],
+    ['experimentalDecorators', true],
+    ['emitDecoratorMetadata', true],
+  ].forEach(key => {
     if (Array.isArray(key)) {
-      overrideCompilerOptions(target, compilerOptions, key[0], key[1])
+      overrideCompilerOptions(target, compilerOptions, key[0] as string, key[1])
     } else {
       overrideCompilerOptions(target, compilerOptions, key)
     }
