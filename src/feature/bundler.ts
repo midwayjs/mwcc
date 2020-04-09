@@ -5,17 +5,29 @@ import sourceMap from 'source-map'
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm'
 import ncc = require('@midwayjs/ncc')
 
+function staticAssert(condition: any): asserts condition {  }
+
 export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) {
   const bundleOpts = ctx.config.features!.bundler!
   let outFiles: string[] = []
 
   for (let [entry, target] of Object.entries(bundleOpts.entries)) {
-    entry = path.resolve(ctx.projectDir, entry)
-    if (ctx.files.indexOf(entry) < 0) {
-      throw new Error(`entry(${entry}) not included in compilation.`)
+    let resolvedEntry
+    if (entry.startsWith('?') && typeof target === 'object') {
+      resolvedEntry = path.resolve(ctx.buildDir, entry.substring(1) + '.generated.js')
+      host.writeFile(resolvedEntry, target.sourceCode, false)
+      target = target.target
+    } else {
+      entry = path.resolve(ctx.projectDir, entry)
+      if (ctx.files.indexOf(entry) < 0) {
+        throw new Error(`entry(${entry}) not included in compilation.`)
+      }
+      resolvedEntry = ctx.config.features?.tsc ? ctx.getTsOutputPath(entry) : path.resolve(ctx.projectDir, entry)
     }
+
+    staticAssert(typeof target === 'string')
+
     const realBuildDir = host.realpath!(ctx.buildDir)
-    const resolvedEntry = ctx.config.features?.tsc ? ctx.getTsOutputPath(entry) : path.resolve(ctx.projectDir, entry)
     const targetFilePath = path.resolve(ctx.buildDir, target)
     const { code, map } = await ncc(resolvedEntry, {
       cache: false,

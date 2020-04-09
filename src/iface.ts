@@ -7,7 +7,7 @@ export type CodeCacheVariant = string
 
 export interface BundlerOptions {
   entries: {
-    [name: string]: string
+    [name: string]: string | { sourceCode: string, target: string }
   };
   codecache: CodeCacheVariant;
 }
