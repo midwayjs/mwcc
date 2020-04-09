@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "importHelpers": true,
     "outDir": ".foo"
   }
 }
