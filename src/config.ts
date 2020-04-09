@@ -122,7 +122,7 @@ function overrideCompilerOptions (target: CompilerOptionsJsonObject | undefined,
   if (typeof target[key] === 'string' && target[key].toLowerCase() === val) {
     return
   }
-  logger.warning(`override compilerOptions.out with '${val}'`)
+  logger.warning(`override compilerOptions.${key} with ${JSON.stringify(val)}`)
   if (val == null) {
     delete compilerOptions[key]
   } else {
