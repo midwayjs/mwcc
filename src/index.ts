@@ -30,3 +30,5 @@ export const findAndParseTsConfig = function findAndParseTsConfig (projectDir: s
   const cli = ts.parseJsonConfigFileContent(config, ts.sys, projectDir, undefined, tsconfigPath)
   return cli
 }
+
+export * from './iface'
