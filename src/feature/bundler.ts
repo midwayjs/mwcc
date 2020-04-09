@@ -32,6 +32,7 @@ export default async function bundle (ctx: MwccContext, host: MwccCompilerHost) 
     const targetFilePath = path.resolve(ctx.buildDir, target)
     const { code, map } = await ncc(resolvedEntry, {
       cache: false,
+      externals: bundleOpts.externals,
       filename: target,
       sourceMap: true,
       sourceMapRegister: false,

@@ -9,6 +9,7 @@ export interface BundlerOptions {
   entries: {
     [name: string]: string | { sourceCode: string, target: string }
   };
+  externals?: string[]
   codecache: CodeCacheVariant;
 }
 
