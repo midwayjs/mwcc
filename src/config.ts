@@ -59,6 +59,7 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
     'out',
     'outFile',
     'rootDirs',
+    ['noEmit', false],
     ['module', 'commonjs'],
     ['importHelpers', false],
     ['emitBOM', false],
