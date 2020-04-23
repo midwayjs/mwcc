@@ -102,9 +102,6 @@ export function resolveTsConfigFile (projectDir: string, outDir?: string, config
     tsconfigPath = undefined
   }
   if (tsconfigPath != null) {
-    if (tsconfigPath == null) {
-      throw new Error(`Failed to find a tsconfig.json in directory '${projectDir}'`)
-    }
     const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
     if (readResult.error) {
       throw new Error(`Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`)

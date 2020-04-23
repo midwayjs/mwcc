@@ -55,7 +55,7 @@ export default class Orchestra {
      */
     compilerOptions.outDir = this.context.buildDir
 
-    const host = compilerOptions.incremental ? ts.createIncrementalCompilerHost(compilerOptions) : ts.createCompilerHost(compilerOptions)
+    const host = compilerOptions.incremental ? ts.createIncrementalCompilerHost(compilerOptions) : ts.createCompilerHost(compilerOptions, true)
     let allDiagnostics: ts.Diagnostic[] = []
     /**
      * 1. compile TypeScript files

@@ -15,3 +15,20 @@ export function extend (...args) {
     return previous
   }, {})
 }
+
+class AssertionFailure extends Error {}
+
+export function assert (condition: any, message?: string): asserts condition {
+  if (!condition) {
+    throw new AssertionFailure(message ?? 'Assert Failed')
+  }
+}
+
+export function any<T>(arr: T[], match: (T) => boolean): boolean {
+  for (let item of arr) {
+    if (match(item)) {
+      return true
+    }
+  }
+  return false
+}
