@@ -7,7 +7,7 @@ export default {
     USE(ctx)
     return {
       'CallExpression Identifier': (node: ts.Identifier) => {
-        if (ts.isIdentifier(node) && node.text.startsWith('use')) {
+        if (node.text.startsWith('use')) {
           return ts.createCall(ts.createPropertyAccess(
             node,
             ts.createIdentifier('bind')

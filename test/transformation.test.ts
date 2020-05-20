@@ -1,32 +1,26 @@
 import { compileWithOptions } from '../src/index'
 import { rimraf } from './util'
+import cases from './transformer/cases'
 import path = require('path')
 import assert = require('assert')
 import fs = require('fs')
 
-describe('transformation', () => {
-  const projectDir = path.resolve(__dirname, './transformation/function-call')
-  const outDir = 'dist'
-  const absoluteOutDir = path.resolve(projectDir, outDir)
-  beforeEach(() => {
-    rimraf(absoluteOutDir)
-    process.chdir(projectDir)
-  })
-  it('should transform', async () => {
-    const { diagnostics } = await compileWithOptions(projectDir, outDir, {
-      features: {
-        tsc: {
-          transformers: [
-            {
-              name: require.resolve('./transformer/use-bind.ts')
-            }
-          ]
-        }
-      }
+cases.forEach(esac => {
+  describe(`transformation: ${esac.name}`, () => {
+    const projectDir = path.resolve(esac.projectRoot)
+    const outDir = 'dist'
+    const absoluteOutDir = path.resolve(projectDir, outDir)
+    beforeEach(() => {
+      rimraf(absoluteOutDir)
+      process.chdir(projectDir)
     })
-    assert.deepStrictEqual(diagnostics, [])
 
-    assertOutputFile('index.js', projectDir)
+    it('should transform', async () => {
+      const { diagnostics } = await compileWithOptions(projectDir, outDir, esac.hintConfig)
+      assert.deepStrictEqual(diagnostics, [])
+
+      esac.assertOutputFiles.forEach(it => assertOutputFile(it, projectDir))
+    })
   })
 })
 
