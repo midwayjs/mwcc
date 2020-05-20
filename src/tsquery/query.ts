@@ -373,6 +373,47 @@ export function match (ast: ts.Node, selector) {
 }
 
 /**
+ * From a JS AST and a selector AST, collect all JS AST nodes that
+ * match the selector.
+ * @param {?SelectorAST} selector
+ * @returns {external:AST[]}
+ */
+export function visitMatch (ast: ts.Node, selector, onMatch: (node: ts.Node) => ts.Node, ctx: ts.TransformationContext) {
+  const ancestry: ts.Node[] = []
+  if (!selector) { return ast }
+  const altSubjects = subjects(selector)
+  const result = tstraverse.visit(ast, {
+    enter (node, parent) {
+      if (parent != null) { ancestry.unshift(parent) }
+      if (matches(node, selector, ancestry)) {
+        if (altSubjects.length) {
+          for (let i = 0, l = altSubjects.length; i < l; ++i) {
+            if (matches(node, altSubjects[i], ancestry)) {
+              return onMatch(node)
+            }
+            for (let k = 0, m = ancestry.length; k < m; ++k) {
+              if (matches(ancestry[k], altSubjects[i], ancestry.slice(k + 1))) {
+                // TODO: Support replace ancestry;
+                // onMatch(ancestry[k])
+              }
+            }
+          }
+        } else {
+          return onMatch(node)
+        }
+      }
+      return undefined
+    },
+    leave () {
+      ancestry.shift()
+      return undefined
+    }
+    // fallback: 'iteration'
+  }, ctx)
+  return result
+}
+
+/**
  * Parse a selector string and return its AST.
  * @param {string} selector
  * @returns {SelectorAST}

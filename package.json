@@ -37,7 +37,10 @@
     ],
     "env": {
       "mocha": true
-    }
+    },
+    "ignore": [
+      "test/**/expect"
+    ]
   },
   "devDependencies": {
     "@types/mocha": "^7.0.2",

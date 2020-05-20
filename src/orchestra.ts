@@ -2,6 +2,8 @@ import * as ts from 'typescript'
 
 import { MwccConfig, MwccContext } from './iface'
 import bundler from './feature/bundler'
+import { createLanguageServiceHost } from './language-service-host'
+import createTransformer from './transformer'
 import path = require('path');
 import assert = require('assert');
 
@@ -62,7 +64,11 @@ export default class Orchestra {
      */
     if (this.config?.features?.tsc) {
       const program = compilerOptions.incremental ? ts.createIncrementalProgram({ rootNames: this.context.files, host, options: compilerOptions }) : ts.createProgram(this.context.files, compilerOptions, host)
-      const emitResult = program.emit()
+      const langServHost = createLanguageServiceHost(host, this.parsedCommandLine)
+      const languageService = ts.createLanguageService(langServHost)
+      const emitResult = program.emit(undefined, undefined, undefined, false, {
+        before: [createTransformer(host, languageService, this.config)]
+      })
       this.context.outFiles = emitResult.emittedFiles ?? []
       this.calibrateSourceRoots(host)
 
