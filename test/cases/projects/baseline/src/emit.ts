@@ -1,2 +1,2 @@
-const decl = require('./decl')
-decl(123)
+const decl = require('./decl');
+decl(123);

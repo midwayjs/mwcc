@@ -1,3 +1,3 @@
-import * as assert from 'assert'
+import * as assert from 'assert';
 
-assert(true)
+assert(true);

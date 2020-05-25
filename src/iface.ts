@@ -1,22 +1,22 @@
-import * as ts from 'typescript'
+import * as ts from 'typescript';
 
-export { TransformationContext } from './transformation-context'
+export { TransformationContext } from './transformation-context';
 
 /**
  * e.g. node-v12.0.0
  */
-export type CodeCacheVariant = string
+export type CodeCacheVariant = string;
 
 export interface BundlerOptions {
   entries: {
-    [name: string]: string | { sourceCode: string, target: string }
+    [name: string]: string | { sourceCode: string; target: string };
   };
-  externals?: string[]
+  externals?: string[];
   codecache: CodeCacheVariant;
 }
 
 export interface CompilerOptionsJsonObject {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface TsConfigJsonObject {
@@ -31,14 +31,14 @@ export interface MwccConfig {
   include?: string[];
   exclude?: string[];
   features?: {
-    tsc?: boolean | { transformers: {name: string}[] },
-    bundler?: BundlerOptions,
+    tsc?: boolean | { transformers: { name: string }[] };
+    bundler?: BundlerOptions;
   };
 }
 
 export interface MwccBuildSummary extends MwccConfig {
   build: {
-    files: string[],
+    files: string[];
   };
 }
 
@@ -52,6 +52,4 @@ export interface MwccContext {
   getTsOutputPath: (filename: string) => string | undefined;
 }
 
-export interface MwccCompilerHost extends ts.CompilerHost {
-
-}
+export type MwccCompilerHost = ts.CompilerHost;

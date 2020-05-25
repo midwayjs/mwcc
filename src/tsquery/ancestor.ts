@@ -1,29 +1,32 @@
-import ts = require('typescript')
+import ts = require('typescript');
 
-type Kind = ts.SyntaxKind | string
+type Kind = ts.SyntaxKind | string;
 
-export function closestAncestor (node: ts.Node | undefined, kinds: Kind | Kind[]): ts.Node | undefined {
+export function closestAncestor(
+  node: ts.Node | undefined,
+  kinds: Kind | Kind[]
+): ts.Node | undefined {
   if (node == null) {
-    return
+    return;
   }
   if (!Array.isArray(kinds)) {
-    kinds = [kinds]
+    kinds = [kinds];
   }
   kinds = kinds.map(it => {
     if (typeof it === 'string') {
-      return ts.SyntaxKind[it]
+      return ts.SyntaxKind[it];
     }
-    return it
-  })
-  let parent = node.parent as (ts.Node | undefined)
+    return it;
+  });
+  let parent = node.parent as ts.Node | undefined;
   while (parent != null) {
-    node = parent
+    node = parent;
     if (kinds.indexOf(node.kind) >= 0) {
-      return node
+      return node;
     }
 
-    parent = node.parent
+    parent = node.parent;
   }
 
-  return undefined
+  return undefined;
 }

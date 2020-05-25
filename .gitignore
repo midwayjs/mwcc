@@ -6,5 +6,7 @@ coverage
 .*
 !.gitignore
 !.npmignore
+!.eslintrc.json
+!.prettierrc.js
 
 src/tsquery/parser.js

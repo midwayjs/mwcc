@@ -1,14 +1,14 @@
-import ts = require('typescript')
-import { query } from '../tsquery'
-import { any } from '../util'
+import { query } from '../tsquery';
+import { any } from '../util';
+import ts = require('typescript');
 
 export interface IConfigurationProjectReference {
-  moduleId: string
+  moduleId: string;
 }
 
 export interface IConfigurationComprehension {
-  imports: IConfigurationProjectReference[]
-  configs: string[]
+  imports: IConfigurationProjectReference[];
+  configs: string[];
 }
 
 interface ImportedName {
@@ -17,114 +17,149 @@ interface ImportedName {
   importedName: string;
 }
 
-export function parseConfiguration (program: ts.Program) {
-  const fileNames = program.getRootFileNames()
+export function parseConfiguration(program: ts.Program) {
+  const fileNames = program.getRootFileNames();
   const result: IConfigurationComprehension = {
     imports: [],
-    configs: []
-  }
-  for (let fileName of fileNames) {
-    const sourceFile = program.getSourceFile(fileName)!
-    const config = parseConfigurationInFile(sourceFile, program)
-    result.imports = result.imports.concat(config.imports)
-    result.configs = result.configs.concat(config.configs)
+    configs: [],
+  };
+  for (const fileName of fileNames) {
+    const sourceFile = program.getSourceFile(fileName)!;
+    const config = parseConfigurationInFile(sourceFile, program);
+    result.imports = result.imports.concat(config.imports);
+    result.configs = result.configs.concat(config.configs);
   }
 
-  return result
+  return result;
 }
 
-function parseConfigurationInFile (sourceFile: ts.SourceFile, program: ts.Program) {
+function parseConfigurationInFile(
+  sourceFile: ts.SourceFile,
+  program: ts.Program
+) {
   if (sourceFile.fileName.endsWith('.js')) {
-    return parseConfigurationInJS(sourceFile, program)
+    return parseConfigurationInJS(sourceFile, program);
   }
-  const decorators = query(sourceFile, 'ClassDeclaration Decorator') as ts.Decorator[]
+  const decorators = query(
+    sourceFile,
+    'ClassDeclaration Decorator'
+  ) as ts.Decorator[];
   const result: IConfigurationComprehension = {
     imports: [],
-    configs: []
-  }
+    configs: [],
+  };
 
-  for (let decorator of decorators) {
-    const config = resolveDecoratorCallExpression(decorator.expression, program)
+  for (const decorator of decorators) {
+    const config = resolveDecoratorCallExpression(
+      decorator.expression,
+      program
+    );
     if (config) {
-      result.imports = result.imports.concat(config.imports)
-      result.configs = result.configs.concat(config.configs)
+      result.imports = result.imports.concat(config.imports);
+      result.configs = result.configs.concat(config.configs);
     }
   }
 
-  return result
+  return result;
 }
 
-function parseConfigurationInJS (sourceFile: ts.SourceFile, program: ts.Program) {
-  const decorations = query(sourceFile, 'CallExpression[expression.escapedText="___decorate"]') as ts.CallExpression[]
+function parseConfigurationInJS(
+  sourceFile: ts.SourceFile,
+  program: ts.Program
+) {
+  const decorations = query(
+    sourceFile,
+    'CallExpression[expression.escapedText="___decorate"]'
+  ) as ts.CallExpression[];
   const result: IConfigurationComprehension = {
     imports: [],
-    configs: []
-  }
+    configs: [],
+  };
 
-  for (let decoration of decorations) {
+  for (const decoration of decorations) {
     if (!ts.isCallExpression(decoration)) {
-      continue
+      continue;
     }
-    const arg = decoration.arguments[0]
+    const arg = decoration.arguments[0];
     if (!ts.isArrayLiteralExpression(arg)) {
-      continue
+      continue;
     }
-    for (let decoratorExpression of arg.elements) {
-      const config = resolveDecoratorCallExpression(decoratorExpression, program)
+    for (const decoratorExpression of arg.elements) {
+      const config = resolveDecoratorCallExpression(
+        decoratorExpression,
+        program
+      );
       if (config) {
-        result.imports = result.imports.concat(config.imports)
-        result.configs = result.configs.concat(config.configs)
+        result.imports = result.imports.concat(config.imports);
+        result.configs = result.configs.concat(config.configs);
       }
     }
   }
 
-  return result
+  return result;
 }
 
-function resolveDecoratorCallExpression (expression: ts.Node, program: ts.Program) {
+function resolveDecoratorCallExpression(
+  expression: ts.Node,
+  program: ts.Program
+) {
   if (!ts.isCallExpression(expression)) {
-    return
+    return;
   }
-  const arg = expression.arguments[0]
+  const arg = expression.arguments[0];
   if (!ts.isObjectLiteralExpression(arg)) {
-    return
+    return;
   }
   if (ts.isIdentifier(expression.expression)) {
-    const symbol = program.getTypeChecker().getSymbolAtLocation(expression.expression)!
+    const symbol = program
+      .getTypeChecker()
+      .getSymbolAtLocation(expression.expression)!;
     if (any(resolveImportedName(symbol), isMidwayJsConfigurationDecorator)) {
-      const config = resolveConfiguration(arg)
-      return config
+      const config = resolveConfiguration(arg);
+      return config;
     }
   }
   if (ts.isPropertyAccessExpression(expression.expression)) {
-    const expr = expression.expression
+    const expr = expression.expression;
     if (!ts.isIdentifier(expr.expression) || !ts.isIdentifier(expr.name)) {
-      return
+      return;
     }
-    const symbol = program.getTypeChecker().getSymbolAtLocation(expr.expression)!
-    if (any(resolveImportedName(symbol), mod => isMidwayJsConfigurationDecorator(mod, expr.name.escapedText as string))) {
-      const config = resolveConfiguration(arg)
-      return config
+    const symbol = program
+      .getTypeChecker()
+      .getSymbolAtLocation(expr.expression)!;
+    if (
+      any(resolveImportedName(symbol), mod =>
+        isMidwayJsConfigurationDecorator(mod, expr.name.escapedText as string)
+      )
+    ) {
+      const config = resolveConfiguration(arg);
+      return config;
     }
   }
-  return undefined
+  return undefined;
 }
 
-function isRequireCallExpression (node: ts.Node): node is ts.CallExpression {
-  return ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.escapedText === 'require'
+function isRequireCallExpression(node: ts.Node): node is ts.CallExpression {
+  return (
+    ts.isCallExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.escapedText === 'require'
+  );
 }
 
-function findRequireCallExpression (node: ts.Node): ts.CallExpression | undefined {
+function findRequireCallExpression(
+  node: ts.Node
+): ts.CallExpression | undefined {
   if (isRequireCallExpression(node)) {
-    return node
+    return node;
   }
-  return ts.forEachChild(node, (child) => {
-    return findRequireCallExpression(child)
-  })
+  return ts.forEachChild(node, child => {
+    return findRequireCallExpression(child);
+  });
 }
 
-export function resolveImportedName (symbol: ts.Symbol) {
-  const results: ImportedName[] = []
+export function resolveImportedName(symbol: ts.Symbol) {
+  const results: ImportedName[] = [];
   for (const decl of symbol.declarations) {
     /**
      * One of:
@@ -133,11 +168,13 @@ export function resolveImportedName (symbol: ts.Symbol) {
      */
     if (ts.isImportSpecifier(decl)) {
       results.push({
-        moduleId: resolveImportModuleId(closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!)!,
+        moduleId: resolveImportModuleId(
+          closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!
+        )!,
         exportedName: decl.propertyName?.getText() ?? decl.name.getText(),
-        importedName: decl.name.getText()
-      })
-      continue
+        importedName: decl.name.getText(),
+      });
+      continue;
     }
     /**
      * One of:
@@ -145,10 +182,12 @@ export function resolveImportedName (symbol: ts.Symbol) {
      */
     if (ts.isImportClause(decl)) {
       results.push({
-        moduleId: resolveImportModuleId(closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!)!,
-        importedName: decl.name!.getText()
-      })
-      continue
+        moduleId: resolveImportModuleId(
+          closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!
+        )!,
+        importedName: decl.name!.getText(),
+      });
+      continue;
     }
 
     /**
@@ -158,9 +197,9 @@ export function resolveImportedName (symbol: ts.Symbol) {
     if (ts.isImportEqualsDeclaration(decl)) {
       results.push({
         moduleId: resolveImportModuleId(decl)!,
-        importedName: decl.name.getText()
-      })
-      continue
+        importedName: decl.name.getText(),
+      });
+      continue;
     }
 
     /**
@@ -169,15 +208,15 @@ export function resolveImportedName (symbol: ts.Symbol) {
      * - TODO: const <foo = require('mod').foo.bar>;
      */
     if (ts.isVariableDeclaration(decl)) {
-      const moduleId = resolveImportModuleId(decl)!
+      const moduleId = resolveImportModuleId(decl)!;
       if (moduleId == null) {
-        continue
+        continue;
       }
       results.push({
         moduleId,
-        importedName: decl.name.getText()
-      })
-      continue
+        importedName: decl.name.getText(),
+      });
+      continue;
     }
 
     /**
@@ -186,22 +225,24 @@ export function resolveImportedName (symbol: ts.Symbol) {
      * - TODO: const { <foo: bar> } = require('mod').foo;
      */
     if (ts.isBindingElement(decl)) {
-      const moduleId = resolveImportModuleId(closestAncestor(decl, ts.SyntaxKind.VariableDeclaration)!)
+      const moduleId = resolveImportModuleId(
+        closestAncestor(decl, ts.SyntaxKind.VariableDeclaration)!
+      );
       if (moduleId == null) {
-        continue
+        continue;
       }
       results.push({
         moduleId,
         exportedName: decl.propertyName?.getText() ?? decl.name.getText(),
-        importedName: decl.name.getText()
-      })
-      continue
+        importedName: decl.name.getText(),
+      });
+      continue;
     }
   }
-  return results
+  return results;
 }
 
-function resolveImportModuleId (node: ts.Node) {
+function resolveImportModuleId(node: ts.Node) {
   /**
    * One of:
    * - import x from 'mod';
@@ -209,7 +250,7 @@ function resolveImportModuleId (node: ts.Node) {
    * - import {} = require('mod');
    */
   if (ts.isImportDeclaration(node)) {
-    return resolveModuleSpecifier(node.moduleSpecifier)
+    return resolveModuleSpecifier(node.moduleSpecifier);
   }
   /**
    * One of:
@@ -217,92 +258,115 @@ function resolveImportModuleId (node: ts.Node) {
    * - import x = M.x;
    */
   if (ts.isImportEqualsDeclaration(node)) {
-    return resolveModuleReference(node.moduleReference)
+    return resolveModuleReference(node.moduleReference);
   }
 
   if (ts.isVariableDeclaration(node) && node.initializer !== undefined) {
-    const requireCallExpression = findRequireCallExpression(node.initializer)
-    const modIdExpr = requireCallExpression?.arguments[0]
+    const requireCallExpression = findRequireCallExpression(node.initializer);
+    const modIdExpr = requireCallExpression?.arguments[0];
     if (modIdExpr == null || !ts.isStringLiteral(modIdExpr)) {
-      return
+      return;
     }
-    return modIdExpr.text
+    return modIdExpr.text;
   }
 
-  return undefined
+  return undefined;
 }
 
-function resolveModuleSpecifier (node: ts.Expression) {
+function resolveModuleSpecifier(node: ts.Expression) {
   // import ... from 'foo'
   if (ts.isStringLiteral(node)) {
-    return node.text
+    return node.text;
   }
   // import {} = require('mod');
   if (ts.isBinaryExpression(node) && isRequireCallExpression(node.right)) {
     if (ts.isStringLiteral(node.right.arguments[0])) {
-      return node.right.arguments[0].getText()
+      return node.right.arguments[0].getText();
     }
   }
-  return undefined
+  return undefined;
 }
 
-function resolveModuleReference (node: ts.ModuleReference) {
+function resolveModuleReference(node: ts.ModuleReference) {
   /**
    * One of:
    * - import foo = require('mod');
    */
-  if (ts.isExternalModuleReference(node) && ts.isStringLiteral(node.expression)) {
-    return node.expression.text
+  if (
+    ts.isExternalModuleReference(node) &&
+    ts.isStringLiteral(node.expression)
+  ) {
+    return node.expression.text;
   }
-  return undefined
+  return undefined;
 }
 
 function closestAncestor(node: ts.Node, kind: ts.SyntaxKind) {
-  let parent = node.parent
+  let parent = node.parent;
   while (parent != null) {
     if (parent.kind === kind) {
-      return parent
+      return parent;
     }
-    parent = parent.parent
+    parent = parent.parent;
   }
-  return undefined
+  return undefined;
 }
 
-function isMidwayJsConfigurationDecorator (mod: ImportedName, accessName?: string) {
+function isMidwayJsConfigurationDecorator(
+  mod: ImportedName,
+  accessName?: string
+) {
   if (mod.moduleId !== '@midwayjs/decorator') {
-    return false
+    return false;
   }
-  const exportedName = accessName ?? mod.exportedName
+  const exportedName = accessName ?? mod.exportedName;
   if (exportedName === 'Configuration') {
-    return true
+    return true;
   }
-  return false
+  return false;
 }
 
-function resolveConfiguration (node: ts.ObjectLiteralExpression) {
-  const configuration: IConfigurationComprehension = { imports: [], configs: [] }
-  for (let prop of node.properties) {
+function resolveConfiguration(node: ts.ObjectLiteralExpression) {
+  const configuration: IConfigurationComprehension = {
+    imports: [],
+    configs: [],
+  };
+  for (const prop of node.properties) {
     if (!ts.isPropertyAssignment(prop)) {
-      continue
+      continue;
     }
     if (!ts.isIdentifier(prop.name!)) {
-      continue
+      continue;
     }
-    if (prop.name.escapedText === 'imports' && ts.isArrayLiteralExpression(prop.initializer)) {
-      configuration.imports = castArrayLiteralExpressionToStringArray(prop.initializer).map(it => ({ moduleId: it }))
+    if (
+      prop.name.escapedText === 'imports' &&
+      ts.isArrayLiteralExpression(prop.initializer)
+    ) {
+      configuration.imports = castArrayLiteralExpressionToStringArray(
+        prop.initializer
+      ).map(it => ({ moduleId: it }));
     }
-    if (prop.name.escapedText === 'configs' && ts.isArrayLiteralExpression(prop.initializer)) {
-      configuration.configs = castArrayLiteralExpressionToStringArray(prop.initializer)
+    if (
+      prop.name.escapedText === 'configs' &&
+      ts.isArrayLiteralExpression(prop.initializer)
+    ) {
+      configuration.configs = castArrayLiteralExpressionToStringArray(
+        prop.initializer
+      );
     }
   }
-  return configuration
+  return configuration;
 }
 
-function castArrayLiteralExpressionToStringArray (literal: ts.ArrayLiteralExpression) {
-  return literal.elements.map(it => {
-    if (!ts.isStringLiteral(it)) {
-      return
-    }
-    return it.text
-  }).filter(it => !!it) as string[]
+function castArrayLiteralExpressionToStringArray(
+  literal: ts.ArrayLiteralExpression
+) {
+  return literal.elements
+    .map(it => {
+      if (!ts.isStringLiteral(it)) {
+        return;
+      }
+      return it.text;
+    })
+    .filter(it => !!it) as string[];
 }

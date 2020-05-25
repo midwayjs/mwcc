@@ -1,7 +1,7 @@
 export interface IFoo {
-  foo: 'bar'
+  foo: 'bar';
 }
 
-export function foo (it: IFoo) {
-  return it
+export function foo(it: IFoo) {
+  return it;
 }

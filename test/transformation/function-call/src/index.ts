@@ -1,7 +1,7 @@
-export function foo () {
-  return useBar()
+export function foo() {
+  return useBar();
 }
 
-function useBar () {
-  return 'bar'
+function useBar() {
+  return 'bar';
 }

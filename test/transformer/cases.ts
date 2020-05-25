@@ -7,13 +7,13 @@ export default [
         tsc: {
           transformers: [
             {
-              name: require.resolve('./import-redirect')
-            }
-          ]
-        }
-      }
+              name: require.resolve('./import-redirect'),
+            },
+          ],
+        },
+      },
     },
-    assertOutputFiles: ['index.js']
+    assertOutputFiles: ['index.js'],
   },
   {
     name: 'call-expression-transform',
@@ -23,12 +23,12 @@ export default [
         tsc: {
           transformers: [
             {
-              name: require.resolve('./use-bind')
-            }
-          ]
-        }
-      }
+              name: require.resolve('./use-bind'),
+            },
+          ],
+        },
+      },
     },
-    assertOutputFiles: ['index.js']
-  }
-]
+    assertOutputFiles: ['index.js'],
+  },
+];

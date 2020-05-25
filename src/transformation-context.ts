@@ -1,4 +1,4 @@
-import { mixin, USE } from './util'
+import { mixin, USE } from './util';
 import ts = require('typescript');
 
 export interface TransformationContext extends ts.TransformationContext {
@@ -7,54 +7,63 @@ export interface TransformationContext extends ts.TransformationContext {
   getModuleSpecifierValue(decl: ts.ImportDeclaration): string | undefined;
 }
 
-export function createTransformationContext (ctx: ts.TransformationContext, languageService: ts.LanguageService): TransformationContext {
+export function createTransformationContext(
+  ctx: ts.TransformationContext,
+  languageService: ts.LanguageService
+): TransformationContext {
   const newCtx = {
     findAllReferences,
     getImportDeclarations,
-    getModuleSpecifierValue
-  }
-  return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx)
+    getModuleSpecifierValue,
+  };
+  return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx);
 
-  function findAllReferences (node: ts.Node): ts.Node[] {
-    const referencedSymbols = languageService.findReferences(node.getSourceFile().fileName, node.getStart())
+  function findAllReferences(node: ts.Node): ts.Node[] {
+    const referencedSymbols = languageService.findReferences(
+      node.getSourceFile().fileName,
+      node.getStart()
+    );
     if (referencedSymbols == null) {
-      return []
+      return [];
     }
-    return Array.from(getReferencingNodes())
+    return Array.from(getReferencingNodes());
 
-    function * getReferencingNodes () {
+    function* getReferencingNodes() {
       for (const referencedSymbol of referencedSymbols!) {
-        const isAlias = referencedSymbol.definition.kind === ts.ScriptElementKind.alias
-        const references = referencedSymbol.references
+        const isAlias =
+          referencedSymbol.definition.kind === ts.ScriptElementKind.alias;
+        const references = referencedSymbol.references;
         for (let i = 0; i < references.length; i++) {
           // the first reference always seems to be the main definition... the other definitions
           // could be constructed in initializers or elsewhere
-          const reference = references[i]
+          const reference = references[i];
           if (isAlias || !reference.isDefinition || i > 0) {
-            yield getNodeAtPosition(reference.fileName, reference.textSpan)
+            yield getNodeAtPosition(reference.fileName, reference.textSpan);
           }
         }
       }
     }
   }
 
-  function getImportDeclarations (file: ts.SourceFile): ts.ImportDeclaration[] {
+  function getImportDeclarations(file: ts.SourceFile): ts.ImportDeclaration[] {
     // TODO:
-    USE(file)
-    return []
+    USE(file);
+    return [];
   }
 
-  function getModuleSpecifierValue (decl: ts.ImportDeclaration): string | undefined {
-    const { moduleSpecifier } = decl
+  function getModuleSpecifierValue(
+    decl: ts.ImportDeclaration
+  ): string | undefined {
+    const { moduleSpecifier } = decl;
     if (!ts.isStringLiteral(moduleSpecifier)) {
-      return undefined
+      return undefined;
     }
-    return moduleSpecifier.text
+    return moduleSpecifier.text;
   }
 
-  function getNodeAtPosition (filename: string, span: ts.TextSpan): ts.Node {
+  function getNodeAtPosition(filename: string, span: ts.TextSpan): ts.Node {
     // TODO:
-    USE(filename, span)
-    return {} as any
+    USE(filename, span);
+    return {} as any;
   }
 }

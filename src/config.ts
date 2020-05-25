@@ -1,16 +1,20 @@
-import * as ts from 'typescript'
-import * as path from 'path'
-import { CompilerOptionsJsonObject, MwccConfig } from './iface'
-import { extend } from './util'
-import * as logger from './logger'
+import * as ts from 'typescript';
+import * as path from 'path';
+import { CompilerOptionsJsonObject, MwccConfig } from './iface';
+import { extend } from './util';
+import * as logger from './logger';
 
-export function getDefaultConfig (projectDir: string, outDir: string = 'dist', sourceDir: string = 'src'): MwccConfig {
-  const absoluteRootDir = path.resolve(projectDir)
-  const absoluteOutDir = path.resolve(absoluteRootDir, outDir)
-  const absoluteSourceDir = path.resolve(absoluteRootDir, sourceDir)
+export function getDefaultConfig(
+  projectDir: string,
+  outDir = 'dist',
+  sourceDir = 'src'
+): MwccConfig {
+  const absoluteRootDir = path.resolve(projectDir);
+  const absoluteOutDir = path.resolve(absoluteRootDir, outDir);
+  const absoluteSourceDir = path.resolve(absoluteRootDir, sourceDir);
   return {
     features: {
-      tsc: true
+      tsc: true,
     },
     compilerOptions: {
       // language features
@@ -30,32 +34,43 @@ export function getDefaultConfig (projectDir: string, outDir: string = 'dist', s
       outDir: absoluteOutDir,
       rootDir: absoluteSourceDir, // flatten out dir (i.e. out/src/index.js -> out/index.js)
       // program emit options
-      listEmittedFiles: true
+      listEmittedFiles: true,
     },
     include: [absoluteSourceDir],
-    exclude: ['**/node_modules']
-  }
+    exclude: ['**/node_modules'],
+  };
 }
 
-export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: CompilerOptionsJsonObject | undefined, projectDir: string): CompilerOptionsJsonObject {
-  const compilerOptions = extend(base, target)
+export function mergeCompilerOptions(
+  base: CompilerOptionsJsonObject,
+  target: CompilerOptionsJsonObject | undefined,
+  projectDir: string
+): CompilerOptionsJsonObject {
+  const compilerOptions = extend(base, target);
   /**
    * calibrate source root and source map and output dir
    */
   if (target?.rootDir || target?.outDir) {
-    const absoluteOutDir = target?.outDir ? path.resolve(projectDir, target.outDir) : base.outDir!
-    const absoluteRootDir = target?.rootDir ? path.resolve(projectDir, target.rootDir) : base.rootDir!
-    compilerOptions.outDir = absoluteOutDir
-    compilerOptions.rootDir = absoluteRootDir
+    const absoluteOutDir = target?.outDir
+      ? path.resolve(projectDir, target.outDir)
+      : base.outDir!;
+    const absoluteRootDir = target?.rootDir
+      ? path.resolve(projectDir, target.rootDir)
+      : base.rootDir!;
+    compilerOptions.outDir = absoluteOutDir;
+    compilerOptions.rootDir = absoluteRootDir;
     if (target?.compilerOptions?.sourceRoot == null) {
-      compilerOptions.sourceRoot = path.relative(absoluteOutDir, absoluteRootDir)
+      compilerOptions.sourceRoot = path.relative(
+        absoluteOutDir,
+        absoluteRootDir
+      );
     }
   }
 
   if (target?.inlineSourceMap) {
-    delete compilerOptions.sourceMap
+    delete compilerOptions.sourceMap;
   }
-  ;[
+  [
     'out',
     'outFile',
     'rootDirs',
@@ -65,71 +80,111 @@ export function mergeCompilerOptions (base: CompilerOptionsJsonObject, target: C
     ['emitBOM', false],
     ['listEmittedFiles', true],
     ['experimentalDecorators', true],
-    ['emitDecoratorMetadata', true]
+    ['emitDecoratorMetadata', true],
   ].forEach(key => {
     if (Array.isArray(key)) {
-      overrideCompilerOptions(target, compilerOptions, key[0] as string, key[1])
+      overrideCompilerOptions(
+        target,
+        compilerOptions,
+        key[0] as string,
+        key[1]
+      );
     } else {
-      overrideCompilerOptions(target, compilerOptions, key)
+      overrideCompilerOptions(target, compilerOptions, key);
     }
-  })
+  });
   if (compilerOptions.incremental && compilerOptions.tsBuildInfoFile == null) {
-    compilerOptions.tsBuildInfoFile = path.join(compilerOptions.outDir!, '.tsbuildinfo')
+    compilerOptions.tsBuildInfoFile = path.join(
+      compilerOptions.outDir!,
+      '.tsbuildinfo'
+    );
   }
-  return compilerOptions
+  return compilerOptions;
 }
 
-export function mergeConfigs (base: MwccConfig, target: MwccConfig | undefined, projectDir: string): MwccConfig {
-  const compilerOptions = mergeCompilerOptions(base.compilerOptions!, target?.compilerOptions, projectDir)
-  let include = new Set(base.include!)
+export function mergeConfigs(
+  base: MwccConfig,
+  target: MwccConfig | undefined,
+  projectDir: string
+): MwccConfig {
+  const compilerOptions = mergeCompilerOptions(
+    base.compilerOptions!,
+    target?.compilerOptions,
+    projectDir
+  );
+  let include = new Set(base.include!);
   if (target?.include) {
-    include = new Set([...target.include])
+    include = new Set([...target.include]);
   }
-  if (target?.compilerOptions?.rootDir && target?.compilerOptions.rootDir !== base.compilerOptions?.rootDir) {
-    include.delete(base.compilerOptions?.rootDir!)
-    include.add(compilerOptions.rootDir)
+  if (
+    target?.compilerOptions?.rootDir &&
+    target?.compilerOptions.rootDir !== base.compilerOptions?.rootDir
+  ) {
+    include.delete(base.compilerOptions?.rootDir!);
+    include.add(compilerOptions.rootDir);
   }
 
-  const features = extend(base.features, target?.features)
+  const features = extend(base.features, target?.features);
 
-  return extend(base, target, { compilerOptions, include: [...include], features })
+  return extend(base, target, {
+    compilerOptions,
+    include: [...include],
+    features,
+  });
 }
 
-export function resolveTsConfigFile (projectDir: string, outDir?: string, configName?: string, hintConfig?: MwccConfig, overrideConfig?: MwccConfig) {
-  let tsconfigPath = ts.findConfigFile(projectDir, ts.sys.fileExists, configName)
-  let readConfig
+export function resolveTsConfigFile(
+  projectDir: string,
+  outDir?: string,
+  configName?: string,
+  hintConfig?: MwccConfig,
+  overrideConfig?: MwccConfig
+) {
+  let tsconfigPath = ts.findConfigFile(
+    projectDir,
+    ts.sys.fileExists,
+    configName
+  );
+  let readConfig;
   if (tsconfigPath?.startsWith(projectDir) === false) {
-    tsconfigPath = undefined
+    tsconfigPath = undefined;
   }
   if (tsconfigPath != null) {
-    const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+    const readResult = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
     if (readResult.error) {
-      throw new Error(`Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`)
+      throw new Error(
+        `Failed to parse ${tsconfigPath} for ${readResult.error.messageText}`
+      );
     }
-    readConfig = readResult.config
+    readConfig = readResult.config;
   }
-  const defaultConfig = getDefaultConfig(projectDir, outDir)
-  let config = mergeConfigs(defaultConfig, hintConfig, projectDir)
-  config = mergeConfigs(config, readConfig, projectDir)
-  config = mergeConfigs(config, { compilerOptions: { outDir } }, projectDir)
-  config = mergeConfigs(config, overrideConfig, projectDir)
-  return { config, tsconfigPath }
+  const defaultConfig = getDefaultConfig(projectDir, outDir);
+  let config = mergeConfigs(defaultConfig, hintConfig, projectDir);
+  config = mergeConfigs(config, readConfig, projectDir);
+  config = mergeConfigs(config, { compilerOptions: { outDir } }, projectDir);
+  config = mergeConfigs(config, overrideConfig, projectDir);
+  return { config, tsconfigPath };
 }
 
-function overrideCompilerOptions (target: CompilerOptionsJsonObject | undefined, compilerOptions: CompilerOptionsJsonObject, key: string, val?: any) {
+function overrideCompilerOptions(
+  target: CompilerOptionsJsonObject | undefined,
+  compilerOptions: CompilerOptionsJsonObject,
+  key: string,
+  val?: any
+) {
   if (target?.[key] == null) {
-    return
+    return;
   }
   if (typeof target[key] !== 'string' && target[key] === val) {
-    return
+    return;
   }
   if (typeof target[key] === 'string' && target[key].toLowerCase() === val) {
-    return
+    return;
   }
-  logger.warning(`override compilerOptions.${key} with ${JSON.stringify(val)}`)
+  logger.warning(`override compilerOptions.${key} with ${JSON.stringify(val)}`);
   if (val == null) {
-    delete compilerOptions[key]
+    delete compilerOptions[key];
   } else {
-    compilerOptions[key] = val
+    compilerOptions[key] = val;
   }
 }

@@ -1,3 +1,3 @@
 #!/usr/bin/env node
 
-require('../dist/mwcc')
+require('../dist/mwcc');
