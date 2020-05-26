@@ -16,6 +16,22 @@ export default [
     assertOutputFiles: ['index.js'],
   },
   {
+    name: 'template',
+    projectRoot: 'test/transformation/function-call',
+    hintConfig: {
+      features: {
+        tsc: {
+          transformers: [
+            {
+              name: require.resolve('./template'),
+            },
+          ],
+        },
+      },
+    },
+    assertOutputFiles: ['index.js'],
+  },
+  {
     name: 'call-expression-transform',
     projectRoot: 'test/transformation/function-call',
     hintConfig: {
