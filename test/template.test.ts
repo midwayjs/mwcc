@@ -50,4 +50,18 @@ describe('template', () => {
       'var myModule = require("my-module".toUpperCase());'
     );
   });
+
+  it('composing multiple templates', () => {
+    const buildRequire = template('fn(SOURCE);');
+    const buildObjectLiteral = template('({ foo: "bar" });');
+
+    const stmt = buildRequire({
+      SOURCE: (buildObjectLiteral({})[0] as ts.ExpressionStatement).expression,
+    })[0];
+
+    assert.strictEqual(
+      getCode(stmt),
+      'fn(({ foo: "bar" }));'
+    );
+  });
 });
