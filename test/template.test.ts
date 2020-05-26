@@ -28,4 +28,26 @@ describe('template', () => {
 
     assert.strictEqual(getCode(stmt), 'var myModule = require("my-module");');
   });
+
+  it('should replace identifier with property accessor', () => {
+    const buildRequire = template('var IMPORT_NAME = require(SOURCE);');
+    assert(buildRequire);
+
+    const stmt = buildRequire({
+      IMPORT_NAME: ts.createIdentifier('myModule'),
+      SOURCE: ts.createCall(
+        ts.createPropertyAccess(
+          ts.createStringLiteral('my-module'),
+          'toUpperCase'
+        ),
+        [],
+        []
+      ),
+    })[0];
+
+    assert.strictEqual(
+      getCode(stmt),
+      'var myModule = require("my-module".toUpperCase());'
+    );
+  });
 });
