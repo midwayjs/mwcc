@@ -73,10 +73,20 @@ function chainTransformers(
   };
 }
 
-function contextPostProcessor(ctx: TransformationContext): (node: ts.SourceFile) => ts.SourceFile {
+function contextPostProcessor(
+  ctx: TransformationContext
+): (node: ts.SourceFile) => ts.SourceFile {
   return (node: ts.SourceFile) => {
     const decls = ctx.additionalImportDeclarations;
     ctx.additionalImportDeclarations = [];
-    return ts.updateSourceFileNode(node, [...decls, ...node.statements], node.isDeclarationFile, node.referencedFiles, node.typeReferenceDirectives, node.hasNoDefaultLib, node.libReferenceDirectives)
+    return ts.updateSourceFileNode(
+      node,
+      [...decls, ...node.statements],
+      node.isDeclarationFile,
+      node.referencedFiles,
+      node.typeReferenceDirectives,
+      node.hasNoDefaultLib,
+      node.libReferenceDirectives
+    );
   };
 }

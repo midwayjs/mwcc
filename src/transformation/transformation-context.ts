@@ -2,9 +2,14 @@ import { mixin, USE } from '../util';
 import ts = require('typescript');
 
 export interface TransformationContext extends ts.TransformationContext {
-  createAndAddImportDeclaration(file: ts.SourceFile, moduleSpecifier: string, importClause: ts.ImportClause | undefined): ts.ImportDeclaration;
+  createAndAddImportDeclaration(
+    file: ts.SourceFile,
+    moduleSpecifier: string,
+    importClause: ts.ImportClause | undefined
+  ): ts.ImportDeclaration;
   getImportDeclarations(file: ts.SourceFile): ts.ImportDeclaration[];
   getModuleSpecifierValue(decl: ts.ImportDeclaration): string | undefined;
+  getSourceFileName(node: ts.Node): string;
 }
 
 /** @internal */
@@ -13,7 +18,7 @@ export interface TransformationContext {
 }
 
 export function createTransformationContext(
-  ctx: ts.TransformationContext,
+  ctx: ts.TransformationContext
 ): TransformationContext {
   const additionalImportDeclarations: ts.ImportDeclaration[] = [];
   const newCtx = {
@@ -21,11 +26,21 @@ export function createTransformationContext(
     createAndAddImportDeclaration,
     getImportDeclarations,
     getModuleSpecifierValue,
+    getSourceFileName,
   };
   return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx);
 
-  function createAndAddImportDeclaration(file: ts.SourceFile, moduleSpecifier: string, importClause: ts.ImportClause): ts.ImportDeclaration {
-    const decl = ts.createImportDeclaration([], [], importClause, ts.createStringLiteral(moduleSpecifier));
+  function createAndAddImportDeclaration(
+    file: ts.SourceFile,
+    moduleSpecifier: string,
+    importClause: ts.ImportClause
+  ): ts.ImportDeclaration {
+    const decl = ts.createImportDeclaration(
+      [],
+      [],
+      importClause,
+      ts.createStringLiteral(moduleSpecifier)
+    );
     additionalImportDeclarations.push(decl);
     return decl;
   }
@@ -46,9 +61,8 @@ export function createTransformationContext(
     return moduleSpecifier.text;
   }
 
-  function getNodeAtPosition(filename: string, span: ts.TextSpan): ts.Node {
-    // TODO:
-    USE(filename, span);
-    return {} as any;
+  function getSourceFileName(node: ts.Node): string {
+    const sourceFile = node.getSourceFile();
+    return sourceFile.fileName;
   }
 }

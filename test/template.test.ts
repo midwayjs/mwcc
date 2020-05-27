@@ -26,7 +26,10 @@ describe('template', () => {
     assert(ts.isStringLiteral(arg1));
     assert.strictEqual(arg1.text, 'my-module');
 
-    assert.strictEqual(getCodeOfNode(stmt), 'var myModule = require("my-module");');
+    assert.strictEqual(
+      getCodeOfNode(stmt),
+      'var myModule = require("my-module");'
+    );
   });
 
   it('should replace identifier with property accessor', () => {
@@ -59,9 +62,6 @@ describe('template', () => {
       SOURCE: (buildObjectLiteral({})[0] as ts.ExpressionStatement).expression,
     })[0];
 
-    assert.strictEqual(
-      getCodeOfNode(stmt),
-      'fn(({ foo: "bar" }));'
-    );
+    assert.strictEqual(getCodeOfNode(stmt), 'fn(({ foo: "bar" }));');
   });
 });

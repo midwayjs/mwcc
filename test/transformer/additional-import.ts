@@ -10,7 +10,11 @@ export default {
           ts.isStringLiteral(node.moduleSpecifier) &&
           node.moduleSpecifier.text === 'assert'
         ) {
-          ctx.createAndAddImportDeclaration(node.getSourceFile(), 'power-assert', undefined)
+          ctx.createAndAddImportDeclaration(
+            node.getSourceFile(),
+            'power-assert',
+            undefined
+          );
 
           return node;
         }
