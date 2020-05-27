@@ -79,9 +79,11 @@ export default class Orchestra {
             // createProgram: ts.createProgram as any,
           })
         : ts.createProgram(this.context.files, compilerOptions, host);
+
       const checker = (program as any).getProgram
         ? (program as ts.BuilderProgram).getProgram().getTypeChecker()
         : (program as ts.Program).getTypeChecker();
+
       const emitResult = program.emit(undefined, undefined, undefined, false, {
         before: [createTransformer(host, checker, this.config)],
       });

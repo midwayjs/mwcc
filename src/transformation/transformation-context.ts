@@ -4,6 +4,7 @@ import {
   ImportedName,
   resolveImportedName as _resolveImportedNames,
 } from '../comprehension/module';
+import { MwccConfig } from '../iface';
 
 export interface TransformationContext extends ts.TransformationContext {
   createAndAddImportDeclaration(
@@ -15,6 +16,7 @@ export interface TransformationContext extends ts.TransformationContext {
   getModuleSpecifierValue(decl: ts.ImportDeclaration): string | undefined;
   getSourceFileName(node: ts.Node): string;
   resolveImportedNames(id: ts.Identifier): ImportedName[] | undefined;
+  resolveDeclarations(node: ts.Node): ts.Node[];
 }
 
 /** @internal */
@@ -34,6 +36,7 @@ export function createTransformationContext(
     getModuleSpecifierValue,
     getSourceFileName,
     resolveImportedNames,
+    resolveDeclarations,
   };
   return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx);
 
@@ -81,5 +84,13 @@ export function createTransformationContext(
       return undefined;
     }
     return _resolveImportedNames(symbol);
+  }
+
+  function resolveDeclarations(node: ts.Node): ts.Node[] {
+    const symbol = checker.getSymbolAtLocation(node);
+    if (symbol == null) {
+      return [];
+    }
+    return symbol.declarations;
   }
 }
