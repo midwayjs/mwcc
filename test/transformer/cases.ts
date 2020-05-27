@@ -29,7 +29,7 @@ export default [
         },
       },
     },
-    assertOutputFiles: ['index.js'],
+    assertOutputFiles: ['index.js', 'foo.js'],
   },
   {
     name: 'template',

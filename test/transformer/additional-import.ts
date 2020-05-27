@@ -1,6 +1,5 @@
 import ts from 'typescript';
 import { TransformationContext } from '../../';
-import { USE } from '../../src/util';
 
 export default {
   transform: (ctx: TransformationContext) => {
