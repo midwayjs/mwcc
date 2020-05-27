@@ -3,9 +3,9 @@ import {
   createTransformationContext,
   TransformationContext,
 } from './transformation-context';
-import { chainBundle } from './util';
-import { visitMatch, parse } from './tsquery/query';
-import { MwccConfig } from './iface';
+import { chainBundle } from '../util';
+import { visitMatch, parse } from '../tsquery/query';
+import { MwccConfig } from '../iface';
 
 export interface PluginModule {
   transform(ctx: TransformationContext): ConditionalTransformer;
@@ -26,8 +26,8 @@ export default function createTransformer(
         )
       : [];
   return ctx => {
+    const transformCtx = createTransformationContext(ctx);
     const pipeline = transformers.map(transformer => {
-      const transformCtx = createTransformationContext(ctx);
       const it = transformer.transform(transformCtx);
       if (typeof it === 'object') {
         return chainBundle(
@@ -39,7 +39,7 @@ export default function createTransformer(
       }
       return chainBundle(it);
     });
-    return chainTransformers(pipeline);
+    return chainTransformers([...pipeline, contextPostProcessor(transformCtx)]);
   };
 
   function conditionalTransform(
@@ -70,5 +70,13 @@ function chainTransformers(
     return transformers.reduce((node, curr) => {
       return curr(node);
     }, node);
+  };
+}
+
+function contextPostProcessor(ctx: TransformationContext): (node: ts.SourceFile) => ts.SourceFile {
+  return (node: ts.SourceFile) => {
+    const decls = ctx.additionalImportDeclarations;
+    ctx.additionalImportDeclarations = [];
+    return ts.updateSourceFileNode(node, [...decls, ...node.statements], node.isDeclarationFile, node.referencedFiles, node.typeReferenceDirectives, node.hasNoDefaultLib, node.libReferenceDirectives)
   };
 }

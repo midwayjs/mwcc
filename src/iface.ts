@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 
-export { TransformationContext } from './transformation-context';
+export { TransformationContext } from './transformation/transformation-context';
 
 /**
  * e.g. node-v12.0.0

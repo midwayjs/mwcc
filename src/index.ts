@@ -4,6 +4,10 @@ import Orchestra from './orchestra';
 import { MwccConfig } from './iface';
 import { getDefaultConfig, resolveTsConfigFile, mergeConfigs } from './config';
 
+export * from './iface';
+export { template } from './template';
+export { getCodeOfNode } from './util';
+
 async function compile(projectDir: string, config: MwccConfig) {
   const orchestration = new Orchestra(projectDir, config);
   const { summary, diagnostics } = await orchestration.run();
@@ -66,5 +70,3 @@ export const findAndParseTsConfig = function findAndParseTsConfig(
   );
   return cli;
 };
-
-export * from './iface';

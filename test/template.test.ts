@@ -1,7 +1,7 @@
 import { template } from '../src/template';
 import assert = require('assert');
 import ts = require('typescript');
-import { getCode } from '../src/util';
+import { getCodeOfNode } from '../src/util';
 
 describe('template', () => {
   it('should replace identifier', () => {
@@ -26,7 +26,7 @@ describe('template', () => {
     assert(ts.isStringLiteral(arg1));
     assert.strictEqual(arg1.text, 'my-module');
 
-    assert.strictEqual(getCode(stmt), 'var myModule = require("my-module");');
+    assert.strictEqual(getCodeOfNode(stmt), 'var myModule = require("my-module");');
   });
 
   it('should replace identifier with property accessor', () => {
@@ -46,7 +46,7 @@ describe('template', () => {
     })[0];
 
     assert.strictEqual(
-      getCode(stmt),
+      getCodeOfNode(stmt),
       'var myModule = require("my-module".toUpperCase());'
     );
   });
@@ -60,7 +60,7 @@ describe('template', () => {
     })[0];
 
     assert.strictEqual(
-      getCode(stmt),
+      getCodeOfNode(stmt),
       'fn(({ foo: "bar" }));'
     );
   });

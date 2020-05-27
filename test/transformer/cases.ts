@@ -16,6 +16,22 @@ export default [
     assertOutputFiles: ['index.js'],
   },
   {
+    name: 'additional-import',
+    projectRoot: 'test/transformation/additional-import',
+    hintConfig: {
+      features: {
+        tsc: {
+          transformers: [
+            {
+              name: require.resolve('./additional-import'),
+            },
+          ],
+        },
+      },
+    },
+    assertOutputFiles: ['index.js'],
+  },
+  {
     name: 'template',
     projectRoot: 'test/transformation/function-call',
     hintConfig: {

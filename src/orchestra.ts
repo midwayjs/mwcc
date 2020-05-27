@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 
 import { MwccConfig, MwccContext } from './iface';
 import bundler from './feature/bundler';
-import createTransformer from './transformer';
+import createTransformer from './transformation/transformer';
 import path = require('path');
 import assert = require('assert');
 
