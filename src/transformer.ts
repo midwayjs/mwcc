@@ -17,7 +17,6 @@ interface ConditionalTransformer {
 
 export default function createTransformer(
   host: CompilerHost,
-  languageService: ts.LanguageService,
   config: MwccConfig
 ): ts.TransformerFactory<ts.SourceFile> {
   const transformers =
@@ -28,7 +27,7 @@ export default function createTransformer(
       : [];
   return ctx => {
     const pipeline = transformers.map(transformer => {
-      const transformCtx = createTransformationContext(ctx, languageService);
+      const transformCtx = createTransformationContext(ctx);
       const it = transformer.transform(transformCtx);
       if (typeof it === 'object') {
         return chainBundle(
