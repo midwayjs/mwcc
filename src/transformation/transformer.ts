@@ -17,6 +17,7 @@ interface ConditionalTransformer {
 
 export default function createTransformer(
   host: CompilerHost,
+  checker: ts.TypeChecker,
   config: MwccConfig
 ): ts.TransformerFactory<ts.SourceFile> {
   const transformers =
@@ -26,7 +27,7 @@ export default function createTransformer(
         )
       : [];
   return ctx => {
-    const transformCtx = createTransformationContext(ctx);
+    const transformCtx = createTransformationContext(ctx, checker);
     const pipeline = transformers.map(transformer => {
       const it = transformer.transform(transformCtx);
       if (typeof it === 'object') {

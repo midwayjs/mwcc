@@ -76,10 +76,14 @@ export default class Orchestra {
             rootNames: this.context.files,
             host,
             options: compilerOptions,
+            // createProgram: ts.createProgram as any,
           })
         : ts.createProgram(this.context.files, compilerOptions, host);
+      const checker = (program as any).getProgram
+        ? (program as ts.BuilderProgram).getProgram().getTypeChecker()
+        : (program as ts.Program).getTypeChecker();
       const emitResult = program.emit(undefined, undefined, undefined, false, {
-        before: [createTransformer(host, this.config)],
+        before: [createTransformer(host, checker, this.config)],
       });
       this.context.outFiles = emitResult.emittedFiles ?? [];
       this.calibrateSourceRoots(host);
