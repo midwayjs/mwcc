@@ -10,7 +10,7 @@ export function template(
     '%%template%%',
     str,
     languageVersion,
-    false,
+    true,
     scriptKind
   );
   return (options: { [key: string]: ts.Node }) => {
@@ -22,6 +22,7 @@ export function template(
     return transformed.statements;
 
     function visitor(node: ts.Node): ts.Node {
+      markNodeSynthetic(node);
       if (!ts.isIdentifier(node)) {
         return ts.visitEachChild(node, visitor, nullTransformationContext);
       }
@@ -32,4 +33,8 @@ export function template(
       return replacement;
     }
   };
+}
+
+function markNodeSynthetic(node: ts.Node) {
+  node.pos = -1;
 }

@@ -32,6 +32,22 @@ export default [
     assertOutputFiles: ['index.js', 'foo.js'],
   },
   {
+    name: 'unresolved-symbol',
+    projectRoot: 'test/transformation/unresolved-symbol',
+    hintConfig: {
+      features: {
+        tsc: {
+          transformers: [
+            {
+              name: require.resolve('./unresolved-symbol'),
+            },
+          ],
+        },
+      },
+    },
+    assertOutputFiles: ['index.js'],
+  },
+  {
     name: 'template',
     projectRoot: 'test/transformation/function-call',
     hintConfig: {
