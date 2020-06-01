@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 
-import { MwccConfig, MwccContext } from './iface';
+import { MwccConfig, MwccContext } from './type';
 import bundler from './feature/bundler';
 import createTransformer from './transformation/transformer';
 import path = require('path');

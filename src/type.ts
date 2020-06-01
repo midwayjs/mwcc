@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 
-export { TransformationContext } from './transformation/transformation-context';
+import { TransformerPluginModule } from './transformation/type';
+export * from './transformation/type';
 
 /**
  * e.g. node-v12.0.0
@@ -31,7 +32,9 @@ export interface MwccConfig {
   include?: string[];
   exclude?: string[];
   features?: {
-    tsc?: boolean | { transformers: { name: string }[] };
+    tsc?:
+      | boolean
+      | { transformers: { name: string; module?: TransformerPluginModule }[] };
     bundler?: BundlerOptions;
   };
 }

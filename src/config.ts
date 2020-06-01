@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import * as path from 'path';
-import { CompilerOptionsJsonObject, MwccConfig } from './iface';
+import { CompilerOptionsJsonObject, MwccConfig } from './type';
 import { extend } from './util';
 import * as logger from './logger';
 

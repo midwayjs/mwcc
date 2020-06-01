@@ -31,6 +31,10 @@ export function visit<T extends ts.Node>(
   ctx: ts.TransformationContext,
   ancestor?: ts.Node
 ) {
+  // this `node` may be a synthetic node that doesn't have a `parent` set.
+  if (ancestor) {
+    node.parent = ancestor;
+  }
   const before = visitor.enter?.(node, ancestor);
   if (before) {
     /**

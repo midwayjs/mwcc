@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as ts from 'typescript';
 import Orchestra from './orchestra';
-import { MwccConfig } from './iface';
+import { MwccConfig } from './type';
 import { getDefaultConfig, resolveTsConfigFile, mergeConfigs } from './config';
 
-export * from './iface';
+export * from './type';
 export { template } from './template';
 export { getCodeOfNode } from './util';
 

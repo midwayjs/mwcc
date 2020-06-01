@@ -4,7 +4,6 @@ import {
   ImportedName,
   resolveImportedName as _resolveImportedNames,
 } from '../comprehension/module';
-import { MwccConfig } from '../iface';
 
 export interface TransformationContext extends ts.TransformationContext {
   createAndAddImportDeclaration(

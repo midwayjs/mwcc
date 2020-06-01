@@ -5,27 +5,15 @@ import {
 } from './transformation-context';
 import { chainBundle } from '../util';
 import { visitMatch, parse } from '../tsquery/query';
-import { MwccConfig } from '../iface';
-
-export interface PluginModule {
-  transform(ctx: TransformationContext): ConditionalTransformer;
-}
-
-interface ConditionalTransformer {
-  [key: string]: (node: ts.Node) => ts.Node;
-}
+import { PluginModule, ConditionalTransformer } from './type';
+import { MwccConfig } from '../type';
 
 export default function createTransformer(
   host: CompilerHost,
   checker: ts.TypeChecker,
   config: MwccConfig
 ): ts.TransformerFactory<ts.SourceFile> {
-  const transformers =
-    typeof config.features?.tsc === 'object'
-      ? config.features.tsc.transformers.map(({ name }) =>
-          loadTransformer(name)
-        )
-      : [];
+  const transformers = loadPlugin(config);
   return ctx => {
     const transformCtx = createTransformationContext(ctx, checker);
     const pipeline = transformers.map(transformer => {
@@ -62,6 +50,21 @@ function loadTransformer(name: string) {
     return mod.default as PluginModule;
   }
   return mod as PluginModule;
+}
+
+function loadPlugin(config: MwccConfig) {
+  if (typeof config.features?.tsc !== 'object') {
+    return [];
+  }
+  if (!Array.isArray(config.features.tsc.transformers)) {
+    return [];
+  }
+  return config.features.tsc.transformers.map(({ name, module }) => {
+    if (module) {
+      return module;
+    }
+    return loadTransformer(name);
+  });
 }
 
 function chainTransformers(

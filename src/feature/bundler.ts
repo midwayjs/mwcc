@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { MwccContext, MwccCompilerHost } from '../iface';
+import { MwccContext, MwccCompilerHost } from '../type';
 import sourceMap from 'source-map';
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm';
 import ncc = require('@midwayjs/ncc');

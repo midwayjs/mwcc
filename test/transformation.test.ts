@@ -16,10 +16,13 @@ cases.forEach(esac => {
     });
 
     it('should transform', async () => {
+      const hintConfig = {
+        features: { tsc: { transformers: esac.transformers } },
+      };
       const { diagnostics } = await compileWithOptions(
         projectDir,
         outDir,
-        esac.hintConfig
+        hintConfig
       );
       assert.deepStrictEqual(diagnostics, []);
 
