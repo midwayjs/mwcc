@@ -31,11 +31,11 @@ export function visit<T extends ts.Node>(
   ctx: ts.TransformationContext,
   ancestor?: ts.Node
 ) {
-  // this `node` may be a synthetic node that doesn't have a `parent` set.
-  if (ancestor) {
-    node.parent = ancestor;
-  }
   const before = visitor.enter?.(node, ancestor);
+  // this `node` and its children may be a synthetic node that doesn't have a `parent` set.
+  if (before && ancestor) {
+    setParent(before, ancestor);
+  }
   if (before) {
     /**
      * transformer may fall into infinite loop if revisit their result nodes.
@@ -51,5 +51,17 @@ export function visit<T extends ts.Node>(
     ctx
   );
   result = visitor.leave?.(node) ?? result;
+  // this `node` and its children may be a synthetic node that doesn't have a `parent` set.
+  if (result && ancestor) {
+    setParent(result, ancestor);
+  }
+
   return result;
+}
+
+function setParent(node: ts.Node, ancestor: ts.Node) {
+  node.parent = ancestor;
+  ts.forEachChild(node, child => {
+    setParent(child, node);
+  });
 }

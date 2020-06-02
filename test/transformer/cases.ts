@@ -64,14 +64,21 @@ export default [
         module: {
           transform: () => {
             return {
-              'CallExpression Identifier': (node: ts.Node) => {
-                console.log(node, node.getSourceFile().fileName);
-                assert(
-                  node
-                    .getSourceFile()
-                    ?.fileName.includes('test/transformation/function-call')
-                );
+              SourceFile: (node: ts.Node) => {
+                // Validate 'CallExpression PropertyAccess' has correct parent set.
+                validateSourceFile(node);
                 return node;
+
+                function validateSourceFile(node) {
+                  ts.forEachChild(node, child => {
+                    assert(
+                      child
+                        .getSourceFile()
+                        .fileName.includes('test/transformation/function-call')
+                    );
+                    validateSourceFile(child);
+                  });
+                }
               },
             };
           },
