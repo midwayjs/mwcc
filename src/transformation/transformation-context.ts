@@ -86,6 +86,9 @@ export function createTransformationContext(
   }
 
   function resolveDeclarations(node: ts.Node): ts.Node[] {
+    if (node.flags & ts.NodeFlags.Synthesized) {
+      return [];
+    }
     const symbol = checker.getSymbolAtLocation(node);
     if (symbol == null) {
       return [];

@@ -26,7 +26,7 @@ cases.forEach(esac => {
       );
       assert.deepStrictEqual(diagnostics, []);
 
-      esac.assertOutputFiles.forEach(it => assertOutputFile(it, projectDir));
+      esac.assertOutputFiles?.forEach(it => assertOutputFile(it, projectDir));
     });
   });
 });

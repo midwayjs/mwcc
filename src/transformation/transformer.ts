@@ -39,6 +39,8 @@ export default function createTransformer(
       const result = Object.keys(map).reduce((sourceFile, pattern) => {
         return visitMatch(sourceFile, parse(pattern), map[pattern], ctx);
       }, node);
+      // FIXME: Updated SourceFile missing symbol property may crash typescript functions afterwards.
+      (result as any).symbol = {};
       return result;
     };
   }

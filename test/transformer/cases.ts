@@ -1,5 +1,6 @@
 import ts from 'typescript';
-import { assert } from '../../dist/util';
+import { assert } from '../../src/util';
+import { template, TransformationContext } from '../../src';
 
 export default [
   {
@@ -86,5 +87,68 @@ export default [
       },
     ],
     assertOutputFiles: ['index.js'],
+  },
+  {
+    name: 'ctx-resolve-declarations',
+    projectRoot: 'test/transformation/transform-exports',
+    transformers: [
+      {
+        name: 'it',
+        module: {
+          transform: (ctx: TransformationContext) => {
+            return {
+              ExportAssignment: (node: ts.Node) => {
+                // Update SourceFile
+                const expr = (node as ts.ExportAssignment)
+                  .expression as ts.ArrowFunction;
+                return ts.createFunctionDeclaration(
+                  expr.decorators,
+                  expr.modifiers,
+                  expr.asteriskToken,
+                  ts.createIdentifier('$default'),
+                  expr.typeParameters,
+                  expr.parameters,
+                  expr.type,
+                  expr.body as ts.Block
+                );
+              },
+            };
+          },
+        },
+      },
+      {
+        name: 'it',
+        module: {
+          transform: (ctx: TransformationContext) => {
+            return {
+              Identifier: (node: ts.Node) => {
+                // Insert no symbol identifiers
+                const id = node as ts.Identifier;
+                if (id.text === 'demo') {
+                  return (template(`${(node as ts.Identifier).text}`)(
+                    {}
+                  )[0] as ts.ExpressionStatement).expression;
+                }
+                return node;
+              },
+            };
+          },
+        },
+      },
+      {
+        name: 'it',
+        module: {
+          transform: (ctx: TransformationContext) => {
+            return {
+              Identifier: (node: ts.Node) => {
+                // Should not crash
+                assert(ctx.resolveDeclarations(node));
+                return node;
+              },
+            };
+          },
+        },
+      },
+    ],
   },
 ];
