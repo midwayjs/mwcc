@@ -22,7 +22,7 @@ export function template(
     return transformed.statements;
 
     function visitor(node: ts.Node): ts.Node {
-      markNodeSynthetic(node);
+      markNodeSynthesized(node);
       if (!ts.isIdentifier(node)) {
         return ts.visitEachChild(node, visitor, nullTransformationContext);
       }
@@ -35,6 +35,8 @@ export function template(
   };
 }
 
-function markNodeSynthetic(node: ts.Node) {
+function markNodeSynthesized(node: ts.Node) {
   node.pos = -1;
+  node.end = -1;
+  node.flags |= ts.NodeFlags.Synthesized;
 }
