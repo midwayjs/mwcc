@@ -1,7 +1,4 @@
-import * as ts from 'typescript';
-
 import { TransformerPluginModule } from './transformation/type';
-export * from './transformation/type';
 
 /**
  * e.g. node-v12.0.0
@@ -38,21 +35,3 @@ export interface MwccConfig {
     bundler?: BundlerOptions;
   };
 }
-
-export interface MwccBuildSummary extends MwccConfig {
-  build: {
-    files: string[];
-  };
-}
-
-export interface MwccContext {
-  config: MwccConfig;
-  files: string[];
-  outFiles: string[];
-  projectDir: string;
-  buildDir: string;
-  derivedOutputDir: string;
-  getTsOutputPath: (filename: string) => string | undefined;
-}
-
-export type MwccCompilerHost = ts.CompilerHost;

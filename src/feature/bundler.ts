@@ -1,14 +1,15 @@
 import * as path from 'path';
 import * as childProcess from 'child_process';
-import { MwccContext, MwccCompilerHost } from '../type';
 import sourceMap from 'source-map';
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm';
 import ncc = require('@midwayjs/ncc');
+import { MwccContext } from '../program';
+import ts = require('typescript');
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function staticAssert(condition: any): asserts condition {}
 
-export default async function bundle(ctx: MwccContext, host: MwccCompilerHost) {
+export default async function bundle(ctx: MwccContext, host: ts.CompilerHost) {
   const bundleOpts = ctx.config.features!.bundler!;
   let outFiles: string[] = [];
 
@@ -79,7 +80,7 @@ export default async function bundle(ctx: MwccContext, host: MwccCompilerHost) {
 }
 
 async function codecache(
-  host: MwccCompilerHost,
+  host: ts.CompilerHost,
   targetFilepath: string,
   code: string,
   nodejsVersion: string
@@ -160,7 +161,7 @@ function spawn(command: string, args: string[]) {
 
 async function calibrateSourceMaps(
   ctx: MwccContext,
-  host: MwccCompilerHost,
+  host: ts.CompilerHost,
   map: any
 ) {
   const consumer = await new sourceMap.SourceMapConsumer(map);

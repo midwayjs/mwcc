@@ -73,3 +73,12 @@ export function getCodeOfNode(node: ts.Node) {
     ts.createSourceFile('%%', '', ts.ScriptTarget.ESNext)
   );
 }
+
+export function safeJsonParse<T = any>(str: string): T | undefined {
+  try {
+    return JSON.parse(str);
+  } catch {
+    /** ignore */
+  }
+  return undefined;
+}
