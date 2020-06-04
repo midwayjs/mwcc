@@ -78,6 +78,9 @@ export function createTransformationContext(
   function resolveImportedNames(
     node: ts.Identifier
   ): ImportedName[] | undefined {
+    if (node.flags & ts.NodeFlags.Synthesized) {
+      return [];
+    }
     const symbol = checker.getSymbolAtLocation(node);
     if (symbol == null) {
       return undefined;
