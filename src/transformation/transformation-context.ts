@@ -6,11 +6,7 @@ import {
 } from '../comprehension/module';
 
 export interface TransformationContext extends ts.TransformationContext {
-  createAndAddImportDeclaration(
-    file: ts.SourceFile,
-    moduleSpecifier: string,
-    importClause: ts.ImportClause | undefined
-  ): ts.ImportDeclaration;
+  prependHelperStatements(...stmts: ts.Statement[]): void;
   getImportDeclarations(file: ts.SourceFile): ts.ImportDeclaration[];
   getModuleSpecifierValue(decl: ts.ImportDeclaration): string | undefined;
   getSourceFileName(node: ts.Node): string;
@@ -20,17 +16,22 @@ export interface TransformationContext extends ts.TransformationContext {
 
 /** @internal */
 export interface TransformationContext {
-  additionalImportDeclarations: ts.ImportDeclaration[];
+  additionalHelperStatements: ts.Statement[];
+  swapAdditionalHelperStatements(): ts.Statement[];
 }
 
 export function createTransformationContext(
   ctx: ts.TransformationContext,
   checker: ts.TypeChecker
 ): TransformationContext {
-  const additionalImportDeclarations: ts.ImportDeclaration[] = [];
+  const additionalHelperStatements: ts.Statement[] = [];
   const newCtx = {
-    additionalImportDeclarations,
-    createAndAddImportDeclaration,
+    /** @internal */
+    additionalHelperStatements,
+    swapAdditionalHelperStatements,
+
+    /** @public */
+    prependHelperStatements,
     getImportDeclarations,
     getModuleSpecifierValue,
     getSourceFileName,
@@ -39,19 +40,16 @@ export function createTransformationContext(
   };
   return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx);
 
-  function createAndAddImportDeclaration(
-    file: ts.SourceFile,
-    moduleSpecifier: string,
-    importClause: ts.ImportClause
-  ): ts.ImportDeclaration {
-    const decl = ts.createImportDeclaration(
-      [],
-      [],
-      importClause,
-      ts.createStringLiteral(moduleSpecifier)
+  function prependHelperStatements(...stmts: ts.Statement[]) {
+    newCtx.additionalHelperStatements = newCtx.additionalHelperStatements.concat(
+      stmts
     );
-    additionalImportDeclarations.push(decl);
-    return decl;
+  }
+
+  function swapAdditionalHelperStatements() {
+    const stmts = newCtx.additionalHelperStatements;
+    newCtx.additionalHelperStatements = [];
+    return stmts;
   }
 
   function getImportDeclarations(file: ts.SourceFile): ts.ImportDeclaration[] {

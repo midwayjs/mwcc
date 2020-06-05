@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { TransformationContext } from '../../';
+import { TransformationContext } from '../../src';
 
 export default {
   transform: (ctx: TransformationContext) => {
@@ -9,10 +9,14 @@ export default {
           ts.isStringLiteral(node.moduleSpecifier) &&
           node.moduleSpecifier.text === 'assert'
         ) {
-          ctx.createAndAddImportDeclaration(
-            node.getSourceFile(),
-            'power-assert',
-            undefined
+          const id = ts.createTempVariable(undefined);
+          ctx.prependHelperStatements(
+            ts.createImportDeclaration(
+              [],
+              [],
+              ts.createImportClause(id, undefined),
+              ts.createStringLiteral('power-assert')
+            )
           );
 
           return node;

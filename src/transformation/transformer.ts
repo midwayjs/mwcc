@@ -28,7 +28,7 @@ export default function createTransformer(
       }
       return chainBundle(it);
     });
-    return chainTransformers([...pipeline, contextPostProcessor(transformCtx)]);
+    return chainTransformers(pipeline);
   };
 
   function conditionalTransform(
@@ -36,9 +36,18 @@ export default function createTransformer(
     ctx: TransformationContext
   ): ts.Transformer<ts.SourceFile> {
     return (node: ts.SourceFile) => {
-      const result = Object.keys(map).reduce((sourceFile, pattern) => {
+      let result = Object.keys(map).reduce((sourceFile, pattern) => {
         return visitMatch(sourceFile, parse(pattern), map[pattern], ctx);
       }, node);
+      result = ts.updateSourceFileNode(
+        result,
+        [...ctx.swapAdditionalHelperStatements(), ...result.statements],
+        result.isDeclarationFile,
+        result.referencedFiles,
+        result.typeReferenceDirectives,
+        result.hasNoDefaultLib,
+        result.libReferenceDirectives
+      );
       // FIXME: Updated SourceFile missing symbol property may crash typescript functions afterwards.
       (result as any).symbol = (result as any).symbol ?? {};
       return result;
@@ -76,23 +85,5 @@ function chainTransformers(
     return transformers.reduce((node, curr) => {
       return curr(node);
     }, node);
-  };
-}
-
-function contextPostProcessor(
-  ctx: TransformationContext
-): (node: ts.SourceFile) => ts.SourceFile {
-  return (node: ts.SourceFile) => {
-    const decls = ctx.additionalImportDeclarations;
-    ctx.additionalImportDeclarations = [];
-    return ts.updateSourceFileNode(
-      node,
-      [...decls, ...node.statements],
-      node.isDeclarationFile,
-      node.referencedFiles,
-      node.typeReferenceDirectives,
-      node.hasNoDefaultLib,
-      node.libReferenceDirectives
-    );
   };
 }
