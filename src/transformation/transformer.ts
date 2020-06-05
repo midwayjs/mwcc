@@ -39,15 +39,18 @@ export default function createTransformer(
       let result = Object.keys(map).reduce((sourceFile, pattern) => {
         return visitMatch(sourceFile, parse(pattern), map[pattern], ctx);
       }, node);
-      result = ts.updateSourceFileNode(
-        result,
-        [...ctx.swapAdditionalHelperStatements(), ...result.statements],
-        result.isDeclarationFile,
-        result.referencedFiles,
-        result.typeReferenceDirectives,
-        result.hasNoDefaultLib,
-        result.libReferenceDirectives
-      );
+      const additionalHelperStmts = ctx.swapAdditionalHelperStatements();
+      if (additionalHelperStmts.length) {
+        result = ts.updateSourceFileNode(
+          result,
+          [...additionalHelperStmts, ...result.statements],
+          result.isDeclarationFile,
+          result.referencedFiles,
+          result.typeReferenceDirectives,
+          result.hasNoDefaultLib,
+          result.libReferenceDirectives
+        );
+      }
       // FIXME: Updated SourceFile missing symbol property may crash typescript functions afterwards.
       (result as any).symbol = (result as any).symbol ?? {};
       return result;
