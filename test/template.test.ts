@@ -64,4 +64,14 @@ describe('template', () => {
 
     assert.strictEqual(getCodeOfNode(stmt), 'fn(({ foo: "bar" }));');
   });
+
+  it('should be able to build classes and methods', () => {
+    const buildClass = template('class Foo { field(foo: string) {} }');
+    const stmt = buildClass({})[0];
+
+    assert.strictEqual(
+      getCodeOfNode(stmt),
+      'class Foo {\n    field(foo: string) { }\n}'
+    );
+  });
 });
