@@ -1,5 +1,5 @@
 import { template } from '../src/template';
-import assert = require('assert');
+import assert from 'assert';
 import ts from 'typescript';
 import { getCodeOfNode } from '../src/util';
 

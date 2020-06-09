@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { TransformationContext, template } from '../../src';
+import { TransformationContext, template, getCodeOfNode } from '../../src';
 
 export default {
   transform: (ctx: TransformationContext) => {
@@ -17,8 +17,8 @@ export default {
           );
           ctx.prependHelperStatements(
             decl,
-            ...template('ASSERT.assert(true)')({
-              ASSERT: ts.getGeneratedNameForNode(decl),
+            ...template('POWER_ASSERT.strictEqual(true)')({
+              POWER_ASSERT: ts.getGeneratedNameForNode(decl),
             })
           );
           return node;

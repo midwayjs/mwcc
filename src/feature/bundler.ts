@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as childProcess from 'child_process';
 import sourceMap from 'source-map';
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm';
-import * as ncc from '@midwayjs/ncc';
+import ncc from '@midwayjs/ncc';
 import { MwccContext } from '../program';
 import ts from 'typescript';
 

@@ -24,6 +24,16 @@ export default [
     assertOutputFiles: ['index.js', 'foo.js'],
   },
   {
+    name: 'decorators',
+    projectRoot: 'test/transformation/decorators',
+    transformers: [
+      {
+        name: require.resolve('./decorators'),
+      },
+    ],
+    assertOutputFiles: ['index.js'],
+  },
+  {
     name: 'unresolved-symbol',
     projectRoot: 'test/transformation/unresolved-symbol',
     transformers: [
