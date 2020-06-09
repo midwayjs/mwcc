@@ -1,4 +1,4 @@
-import ts = require('typescript');
+import ts from 'typescript';
 
 type Kind = ts.SyntaxKind | string;
 

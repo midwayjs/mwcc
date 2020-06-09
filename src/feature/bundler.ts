@@ -2,9 +2,9 @@ import * as path from 'path';
 import * as childProcess from 'child_process';
 import sourceMap from 'source-map';
 import { isVersionInstalled, install, getExecPathOfVersion } from '../tnvm';
-import ncc = require('@midwayjs/ncc');
+import * as ncc from '@midwayjs/ncc';
 import { MwccContext } from '../program';
-import ts = require('typescript');
+import ts from 'typescript';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function staticAssert(condition: any): asserts condition {}

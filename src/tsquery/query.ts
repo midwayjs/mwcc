@@ -3,7 +3,7 @@
 import * as tstraverse from './traverse';
 import { VisitorKeys } from './visitor-keys';
 import parser from './parser';
-import ts = require('typescript');
+import ts from 'typescript';
 
 /**
  * @typedef {"LEFT_SIDE"|"RIGHT_SIDE"} Side

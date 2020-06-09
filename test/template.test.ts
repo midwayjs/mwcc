@@ -1,6 +1,6 @@
 import { template } from '../src/template';
 import assert = require('assert');
-import ts = require('typescript');
+import ts from 'typescript';
 import { getCodeOfNode } from '../src/util';
 
 describe('template', () => {

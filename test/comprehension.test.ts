@@ -2,7 +2,7 @@ import { findAndParseTsConfig } from '../src/index';
 import { parseConfiguration } from '../src/comprehension/configuration';
 import path = require('path');
 import assert = require('assert');
-import ts = require('typescript');
+import ts from 'typescript';
 
 describe('comprehension', () => {
   it('should statically evaluate @Configuration', () => {

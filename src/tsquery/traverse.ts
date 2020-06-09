@@ -1,4 +1,4 @@
-import ts = require('typescript');
+import ts from 'typescript';
 
 export interface Traverser {
   enter?: (node: ts.Node, parent: ts.Node | undefined) => void;

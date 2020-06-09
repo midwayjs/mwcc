@@ -1,5 +1,5 @@
 import type { TransformationContext } from './transformation-context';
-import ts = require('typescript');
+import ts from 'typescript';
 
 export { TransformationContext };
 

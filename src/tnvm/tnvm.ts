@@ -1,6 +1,6 @@
-import childProcess = require('child_process');
-import path = require('path');
-import os = require('os');
+import * as childProcess from 'child_process';
+import * as path from 'path';
+import * as os from 'os';
 
 const defaultTnvmDir = path.resolve(os.homedir(), '.tnvm');
 const tnvmScriptPath = path.resolve(__dirname, '../../script/tnvm.sh');

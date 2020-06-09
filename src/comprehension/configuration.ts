@@ -1,6 +1,6 @@
 import { query } from '../tsquery';
 import { any } from '../util';
-import ts = require('typescript');
+import ts from 'typescript';
 import { ImportedName, resolveImportedName } from './module';
 
 export interface IConfigurationProjectReference {

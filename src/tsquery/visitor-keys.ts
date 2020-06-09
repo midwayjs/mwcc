@@ -1,4 +1,4 @@
-import ts = require('typescript');
+import ts from 'typescript';
 
 export interface IVisitorKeys {
   [key: number]: string[];

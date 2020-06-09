@@ -1,5 +1,5 @@
 import { mixin, USE } from '../util';
-import ts = require('typescript');
+import ts from 'typescript';
 import {
   ImportedName,
   resolveImportedName as _resolveImportedNames,
