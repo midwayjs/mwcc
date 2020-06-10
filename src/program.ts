@@ -78,6 +78,10 @@ export class Program {
     return this.program.getTypeChecker();
   }
 
+  getSourceFiles(): readonly ts.SourceFile[] {
+    return this.program.getSourceFiles();
+  }
+
   getSourceFile(filename: string): ts.SourceFile | undefined {
     return this.program.getSourceFile(filename);
   }
