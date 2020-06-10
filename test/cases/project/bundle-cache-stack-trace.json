@@ -16,5 +16,8 @@
       }
     }
   },
-  "integration": "dist/index.js"
+  "integration": "dist/index.js",
+  "skip": {
+    "os": ["win32"]
+  }
 }

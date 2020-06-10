@@ -2,6 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as globby from 'globby'
 import * as childProcess from 'child_process'
+import * as os from 'os'
 
 import { compileWithOptions, compileInProject } from '../src/index'
 import { rimraf } from './util'
@@ -14,6 +15,9 @@ for (const projectName of projectCases) {
   describe(`project: ${projectName}`, () => {
     const projectDir = path.resolve(project.projectRoot)
     const outDir = path.resolve(project.projectRoot, project.outDir || 'dist')
+    if (project.skip?.os.includes(os.platform())) {
+      return
+    }
 
     describe('compile', () => {
       beforeEach(() => {
@@ -59,7 +63,7 @@ for (const projectName of projectCases) {
             }
             const sources = sourceMap.sources.map(it => path.join(sourceMap.sourceRoot, it))
             for (const item of expectedMappings) {
-              assert.ok(sources.indexOf(item) >= 0)
+              assert.ok(sources.indexOf(path.normalize(item)) >= 0)
             }
           }
         })
@@ -113,20 +117,26 @@ function assertIncremental (buildInfoPath) {
 }
 
 function assertOutputFiles (projectDir, outDir, project) {
-  const actualFiles: string[] = globby.sync('**/*', {
-    ignore: ['.mwcc-cache'],
-    dot: true,
-    cwd: outDir
-  }).map(it => path.relative(projectDir, path.resolve(outDir, it)))
+  const actualFiles: string[] = globby
+    .sync('**/*', {
+      ignore: ['.mwcc-cache'],
+      dot: true,
+      cwd: outDir
+    })
+    .map(it => path.relative(projectDir, path.resolve(outDir, it)))
   actualFiles.sort()
-  const configJsonIdx = actualFiles.findIndex(it => path.basename(it) === 'midway.build.json')
+  const configJsonIdx = actualFiles.findIndex(
+    it => path.basename(it) === 'midway.build.json'
+  )
   assert(configJsonIdx > 0, 'expect midway.build.json')
   actualFiles.splice(configJsonIdx, 1)
 
-  project.outputFiles.sort()
-  assert.deepStrictEqual(actualFiles, project.outputFiles)
+  const expectedOutputFiles = project.outputFiles.map(it => path.normalize(it)).sort()
+  assert.deepStrictEqual(actualFiles, expectedOutputFiles)
 
-  const midwayBuildJson = JSON.parse(fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8'))
+  const midwayBuildJson = JSON.parse(
+    fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8')
+  )
   assert(midwayBuildJson.compilerOptions != null)
   assert(midwayBuildJson.compilerOptions.module === 'commonjs')
   assert(midwayBuildJson.compilerOptions.jsx === 'react')
