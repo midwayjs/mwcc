@@ -32,7 +32,7 @@ export function getDefaultConfig(
       sourceRoot: path.relative(absoluteOutDir, absoluteSourceDir),
       // directories
       outDir: absoluteOutDir,
-      rootDir: absoluteSourceDir, // flatten out dir (i.e. out/src/index.js -> out/index.js)
+      rootDirs: [absoluteSourceDir], // flatten out dir (i.e. out/src/index.js -> out/index.js)
       // program emit options
       listEmittedFiles: true,
     },
@@ -50,19 +50,25 @@ export function mergeCompilerOptions(
   /**
    * calibrate source root and source map and output dir
    */
-  if (target?.rootDir || target?.outDir) {
+  if (target?.rootDir || target?.rootDirs || target?.outDir) {
     const absoluteOutDir = target?.outDir
       ? path.resolve(projectDir, target.outDir)
       : base.outDir!;
-    const absoluteRootDir = target?.rootDir
-      ? path.resolve(projectDir, target.rootDir)
-      : base.rootDir!;
+    let absoluteRootDirs: string[];
+    if (target?.rootDir) {
+      absoluteRootDirs = [ path.resolve(projectDir, target.rootDir) ];
+    } else if (target?.rootDirs?.length) {
+      absoluteRootDirs = target?.rootDirs!.map(it => path.resolve(projectDir, it));
+    } else {
+      absoluteRootDirs = base.rootDirs;
+    }
     compilerOptions.outDir = absoluteOutDir;
-    compilerOptions.rootDir = absoluteRootDir;
+    compilerOptions.rootDirs = absoluteRootDirs;
+    delete compilerOptions.rootDir;
     if (target?.compilerOptions?.sourceRoot == null) {
       compilerOptions.sourceRoot = path.relative(
         absoluteOutDir,
-        absoluteRootDir
+        compilerOptions.rootDirs[0]
       );
     }
   }
@@ -73,7 +79,6 @@ export function mergeCompilerOptions(
   [
     'out',
     'outFile',
-    'rootDirs',
     ['noEmit', false],
     ['module', 'commonjs'],
     ['importHelpers', false],
@@ -116,12 +121,9 @@ export function mergeConfigs(
   if (target?.include) {
     include = new Set([...target.include]);
   }
-  if (
-    target?.compilerOptions?.rootDir &&
-    target?.compilerOptions.rootDir !== base.compilerOptions?.rootDir
-  ) {
-    include.delete(base.compilerOptions?.rootDir!);
-    include.add(compilerOptions.rootDir);
+  if (target?.compilerOptions?.rootDir || target?.compilerOptions?.rootDirs) {
+    base.compilerOptions?.rootDirs!.forEach(it => include.delete(it));
+    compilerOptions.rootDirs!.forEach(it => include.add(it));
   }
 
   const features = extend(base.features, target?.features);

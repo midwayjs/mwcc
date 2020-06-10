@@ -31,32 +31,33 @@ export class Program {
     const derivedOutputDir = host.derivedOutputDir;
     files = files ?? host.getProjectFiles();
 
-    const context: MwccContext = (this.context = {
+    this.context = {
       config: this.host.getMwccConfig(),
       files,
       outFiles: [],
       projectDir,
       derivedOutputDir,
       buildDir: host.compilerOptions.outDir!,
-      getTsOutputPath(filename) {
-        if (path.isAbsolute(filename) && !filename.startsWith(projectDir)) {
+      getTsOutputPath: (filename) => {
+        if (!path.isAbsolute(filename)) {
+          return;
+        }
+        if (!filename.startsWith(projectDir)) {
           return;
         }
 
-        const files = ts
-          .getOutputFileNames(parsedCommandLine, filename, true)
-          .filter(it => it.endsWith('.js'));
+        const files = this.context.config.compilerOptions!.rootDirs
+          .filter(it => filename.startsWith(it))
+          .map(it => path.relative(it, filename))
+          .map(it => path.join(this.context.buildDir, it.replace(/\.tsx?$/, '.js')));
+
         if (files.length === 0) {
           return;
         }
         assert(files.length === 1);
-        const expectedOutputFile = files[0];
-
-        const relPath = path.relative(derivedOutputDir, expectedOutputFile);
-        const basename = path.basename(relPath);
-        return path.join(context.buildDir, path.dirname(relPath), basename);
+        return files[0];
       },
-    });
+    };
 
     if (compilerOptions.incremental) {
       this.builderProgram = ts.createIncrementalProgram({
@@ -71,6 +72,9 @@ export class Program {
         compilerOptions,
         host.compilerHost
       );
+    }
+    (this.program as any).getCommonSourceDirectory = () => {
+      return this.context.config.compilerOptions!.rootDirs[0] + '/';
     }
   }
 

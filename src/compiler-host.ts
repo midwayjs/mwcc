@@ -16,7 +16,7 @@ export class CompilerHost {
     this.derivedOutputDir = config.compilerOptions?.outDir ?? 'dist';
 
     this.parsedCommandLine = ts.parseJsonConfigFileContent(
-      config,
+      config, /** not a typo. expects an object has a `compilerOptions` property. */
       ts.sys,
       projectDir
     );

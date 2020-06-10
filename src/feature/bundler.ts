@@ -50,7 +50,7 @@ export default async function bundle(ctx: MwccContext, host: ts.CompilerHost) {
     const jsonMap = JSON.parse(map);
     jsonMap.sources = jsonMap.sources.map(it => {
       if (!path.isAbsolute(it)) {
-        return path.relative(ctx.config.compilerOptions?.rootDir!, it);
+        return path.relative(ctx.config.compilerOptions?.rootDirs[0]!, it);
       }
       return it.replace(realBuildDir, '/');
     });
@@ -174,7 +174,7 @@ async function calibrateSourceMaps(
       source
     );
     const sourceMapPath = path.resolve(
-      ctx.config.compilerOptions?.rootDir!,
+      ctx.config.compilerOptions?.rootDirs[0]!,
       sourcePath + '.map'
     );
     const sourceMapContent = host.readFile(sourceMapPath);
