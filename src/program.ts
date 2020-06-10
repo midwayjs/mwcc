@@ -24,11 +24,12 @@ export class Program {
   /** @internal */
   builderProgram: ts.BuilderProgram | undefined;
 
-  constructor(private files: string[], private host: CompilerHost) {
+  constructor(private host: CompilerHost, files?: string[]) {
     const compilerOptions = host.getCompilerOptions();
     const projectDir = host.getProjectDir();
     const parsedCommandLine = host.parsedCommandLine;
     const derivedOutputDir = host.derivedOutputDir;
+    files = files ?? host.getProjectFiles();
 
     const context: MwccContext = (this.context = {
       config: this.host.getMwccConfig(),
@@ -122,6 +123,12 @@ export class Program {
      */
     this.finalizeFileSystem(this.host.compilerHost);
     const summary = this.generateBuildSummary();
+
+    ts.sys.writeFile(
+      path.join(this.context.derivedOutputDir, 'midway.build.json'),
+      JSON.stringify(summary, null, 2)
+    );
+
     return { summary, diagnostics: allDiagnostics };
   }
 

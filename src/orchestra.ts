@@ -7,14 +7,8 @@ import { Program } from './program';
 
 async function compile(projectDir: string, config: MwccConfig) {
   const host = new CompilerHost(projectDir, config);
-  const program = new Program(host.getProjectFiles(), host);
-  const { summary, diagnostics } = await program.emit();
-
-  ts.sys.writeFile(
-    path.join(program.context.derivedOutputDir, 'midway.build.json'),
-    JSON.stringify(summary, null, 2)
-  );
-  return { summary, diagnostics };
+  const program = new Program(host);
+  return await program.emit();
 }
 
 export async function compileWithOptions(
