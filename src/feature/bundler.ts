@@ -12,6 +12,7 @@ function staticAssert(condition: any): asserts condition {}
 export default async function bundle(ctx: MwccContext, host: ts.CompilerHost) {
   const bundleOpts = ctx.config.features!.bundler!;
   let outFiles: string[] = [];
+  const files = ctx.files.map(it => path.normalize(it));
 
   for (let [entry, target] of Object.entries(bundleOpts.entries)) {
     let resolvedEntry;
@@ -24,8 +25,8 @@ export default async function bundle(ctx: MwccContext, host: ts.CompilerHost) {
       target = target.target;
     } else {
       entry = path.resolve(ctx.projectDir, entry);
-      if (ctx.files.indexOf(entry) < 0) {
-        throw new Error(`entry(${entry}) not included in compilation.`);
+      if (files.indexOf(entry) < 0) {
+        throw new Error(`entry(${entry}) not included in compilation, included files(${files.join(', ')})`);
       }
       resolvedEntry = ctx.config.features?.tsc
         ? ctx.getTsOutputPath(entry)

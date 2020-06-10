@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as globby from 'globby';
 import * as childProcess from 'child_process';
+import * as os from 'os';
 
 import { compileWithOptions, compileInProject } from '../src/index';
 import { rimraf } from './util';
@@ -14,6 +15,9 @@ for (const projectName of projectCases) {
   describe(`project: ${projectName}`, () => {
     const projectDir = path.resolve(project.projectRoot);
     const outDir = path.resolve(project.projectRoot, project.outDir || 'dist');
+    if (project.skip?.os.includes(os.platform())) {
+      return;
+    }
 
     describe('compile', () => {
       beforeEach(() => {
@@ -63,7 +67,7 @@ for (const projectName of projectCases) {
             .map(it => [it, fs.readFileSync(path.resolve(projectDir, it))])
             .map(([path, content]) => [path, JSON.parse(content)]);
           for (const [filePath, sourceMap] of sourceMaps) {
-            const expectedMappings = project.sourceMapFiles[filePath];
+            let expectedMappings = project.sourceMapFiles[filePath];
             if (!expectedMappings) {
               continue;
             }
@@ -71,7 +75,7 @@ for (const projectName of projectCases) {
               path.join(sourceMap.sourceRoot, it)
             );
             for (const item of expectedMappings) {
-              assert.ok(sources.indexOf(item) >= 0);
+              assert.ok(sources.indexOf(path.normalize(item)) >= 0);
             }
           }
         });
@@ -144,8 +148,8 @@ function assertOutputFiles(projectDir, outDir, project) {
   assert(configJsonIdx > 0, 'expect midway.build.json');
   actualFiles.splice(configJsonIdx, 1);
 
-  project.outputFiles.sort();
-  assert.deepStrictEqual(actualFiles, project.outputFiles);
+  const expectedOutputFiles = project.outputFiles.map(it => path.normalize(it)).sort();
+  assert.deepStrictEqual(actualFiles, expectedOutputFiles);
 
   const midwayBuildJson = JSON.parse(
     fs.readFileSync(path.resolve(outDir, 'midway.build.json'), 'utf8')

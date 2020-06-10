@@ -66,7 +66,7 @@ export function USE(...condition: any[]) {
 }
 
 export function getCodeOfNode(node: ts.Node) {
-  const printer = ts.createPrinter();
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
   return printer.printNode(
     ts.EmitHint.Unspecified,
     node,

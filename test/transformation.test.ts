@@ -34,9 +34,11 @@ cases.forEach(esac => {
 function assertOutputFile(relPath: string, project: string) {
   const actual = fs
     .readFileSync(path.join(project, 'dist', relPath), 'utf8')
-    .trim();
+    .trim()
+    .replace(/\r\n/g, '\n');
   const expected = fs
     .readFileSync(path.join(project, 'expect', relPath), 'utf8')
-    .trim();
+    .trim()
+    .replace(/\r\n/g, '\n');
   assert.strictEqual(actual, expected);
 }

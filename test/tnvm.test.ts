@@ -1,6 +1,9 @@
 import { TnvmAgent } from '../src/tnvm/tnvm';
 import path = require('path');
 import assert = require('assert');
+import os = require('os');
+
+describe = os.platform() === 'win32' ? describe.skip as typeof describe : describe;
 
 describe('tnvm', () => {
   const version = 'node-v12.0.0';

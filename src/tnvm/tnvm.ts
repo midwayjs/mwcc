@@ -6,11 +6,20 @@ const defaultTnvmDir = path.resolve(os.homedir(), '.tnvm');
 const tnvmScriptPath = path.resolve(__dirname, '../../script/tnvm.sh');
 
 export class TnvmAgent {
-  private shell = this.findBash();
+  private shell: string;
+  private enabled = false;
   // eslint-disable-next-line no-useless-constructor
-  constructor(private tnvmDir: string = defaultTnvmDir) {}
+  constructor(private tnvmDir: string = defaultTnvmDir) {
+    if (os.platform() === 'win32') {
+      this.shell = '';
+    } else {
+      this.shell = this.findBash();
+      this.enabled = true;
+    }
+  }
 
   async listVersions(type: string): Promise<string[]> {
+    this.assertPlatform();
     try {
       const stdout = await this.exec(
         '_tnvm_ls',
@@ -24,6 +33,7 @@ export class TnvmAgent {
   }
 
   async isVersionInstalled(version: string): Promise<boolean> {
+    this.assertPlatform();
     try {
       await this.exec('_tnvm_ensure_version_installed', [version], '');
       return true;
@@ -33,6 +43,7 @@ export class TnvmAgent {
   }
 
   async getExecPathOfVersion(version: string): Promise<string | undefined> {
+    this.assertPlatform();
     let nodeDir;
     try {
       nodeDir = await this.exec(
@@ -50,10 +61,12 @@ export class TnvmAgent {
   }
 
   async install(version: string) {
+    this.assertPlatform();
     return this.exec('tnvm', ['install', version], `install ${version} failed`);
   }
 
   async uninstall(version: string) {
+    this.assertPlatform();
     return this.exec(
       'tnvm',
       ['uninstall', version],
@@ -66,6 +79,7 @@ export class TnvmAgent {
     args: string[],
     errDescription: string
   ): Promise<string> {
+    this.assertPlatform();
     return new Promise((resolve, reject) => {
       childProcess.exec(
         `source ${tnvmScriptPath}; ${command} ${args
@@ -95,6 +109,12 @@ export class TnvmAgent {
     } catch {
       const path = childProcess.execSync('which bash', { encoding: 'utf8' });
       return path.trim();
+    }
+  }
+
+  private assertPlatform() {
+    if (!this.enabled) {
+      throw new Error('tnvm is not available on this type of operating system.');
     }
   }
 }
