@@ -1,3 +1,5 @@
+import tsquery from './tsquery/query';
+
 export * from './orchestra';
 export { CompilerHost } from './compiler-host';
 export { Program } from './program';
@@ -6,3 +8,4 @@ export * from './type';
 export * from './transformation/type';
 export { template } from './template';
 export { getCodeOfNode } from './util';
+export { tsquery };
