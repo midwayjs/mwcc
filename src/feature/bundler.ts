@@ -26,7 +26,11 @@ export default async function bundle(ctx: MwccContext, host: ts.CompilerHost) {
     } else {
       entry = path.resolve(ctx.projectDir, entry);
       if (files.indexOf(entry) < 0) {
-        throw new Error(`entry(${entry}) not included in compilation, included files(${files.join(', ')})`);
+        throw new Error(
+          `entry(${entry}) not included in compilation, included files(${files.join(
+            ', '
+          )})`
+        );
       }
       resolvedEntry = ctx.config.features?.tsc
         ? ctx.getTsOutputPath(entry)

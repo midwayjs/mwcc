@@ -67,7 +67,7 @@ for (const projectName of projectCases) {
             .map(it => [it, fs.readFileSync(path.resolve(projectDir, it))])
             .map(([path, content]) => [path, JSON.parse(content)]);
           for (const [filePath, sourceMap] of sourceMaps) {
-            let expectedMappings = project.sourceMapFiles[filePath];
+            const expectedMappings = project.sourceMapFiles[filePath];
             if (!expectedMappings) {
               continue;
             }
@@ -148,7 +148,9 @@ function assertOutputFiles(projectDir, outDir, project) {
   assert(configJsonIdx > 0, 'expect midway.build.json');
   actualFiles.splice(configJsonIdx, 1);
 
-  const expectedOutputFiles = project.outputFiles.map(it => path.normalize(it)).sort();
+  const expectedOutputFiles = project.outputFiles
+    .map(it => path.normalize(it))
+    .sort();
   assert.deepStrictEqual(actualFiles, expectedOutputFiles);
 
   const midwayBuildJson = JSON.parse(

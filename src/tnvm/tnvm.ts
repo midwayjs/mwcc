@@ -114,7 +114,9 @@ export class TnvmAgent {
 
   private assertPlatform() {
     if (!this.enabled) {
-      throw new Error('tnvm is not available on this type of operating system.');
+      throw new Error(
+        'tnvm is not available on this type of operating system.'
+      );
     }
   }
 }
