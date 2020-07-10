@@ -15,10 +15,16 @@ export function resolveImportedName(symbol: ts.Symbol) {
      * - import { <foo as bar> } from 'mod';
      */
     if (ts.isImportSpecifier(decl)) {
+      const importDecl = closestAncestor(decl, ts.SyntaxKind.ImportDeclaration);
+      if (importDecl == null) {
+        continue;
+      }
+      const moduleId = resolveImportModuleId(importDecl);
+      if (moduleId == null) {
+        continue;
+      }
       results.push({
-        moduleId: resolveImportModuleId(
-          closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!
-        )!,
+        moduleId,
         exportedName: decl.propertyName?.getText() ?? decl.name.getText(),
         importedName: decl.name.getText(),
       });
@@ -29,10 +35,16 @@ export function resolveImportedName(symbol: ts.Symbol) {
      * - import <foo> from 'mod';
      */
     if (ts.isImportClause(decl)) {
+      const importDecl = closestAncestor(decl, ts.SyntaxKind.ImportDeclaration);
+      if (importDecl == null) {
+        continue;
+      }
+      const moduleId = resolveImportModuleId(importDecl);
+      if (moduleId == null) {
+        continue;
+      }
       results.push({
-        moduleId: resolveImportModuleId(
-          closestAncestor(decl, ts.SyntaxKind.ImportDeclaration)!
-        )!,
+        moduleId,
         importedName: decl.name!.getText(),
       });
       continue;
@@ -43,8 +55,12 @@ export function resolveImportedName(symbol: ts.Symbol) {
      * - <import foo = require('mod')>;
      */
     if (ts.isImportEqualsDeclaration(decl)) {
+      const moduleId = resolveImportModuleId(decl);
+      if (moduleId == null) {
+        continue;
+      }
       results.push({
-        moduleId: resolveImportModuleId(decl)!,
+        moduleId,
         importedName: decl.name.getText(),
       });
       continue;
@@ -56,7 +72,7 @@ export function resolveImportedName(symbol: ts.Symbol) {
      * - TODO: const <foo = require('mod').foo.bar>;
      */
     if (ts.isVariableDeclaration(decl)) {
-      const moduleId = resolveImportModuleId(decl)!;
+      const moduleId = resolveImportModuleId(decl);
       if (moduleId == null) {
         continue;
       }
@@ -73,9 +89,14 @@ export function resolveImportedName(symbol: ts.Symbol) {
      * - TODO: const { <foo: bar> } = require('mod').foo;
      */
     if (ts.isBindingElement(decl)) {
-      const moduleId = resolveImportModuleId(
-        closestAncestor(decl, ts.SyntaxKind.VariableDeclaration)!
+      const variableDeclaration = closestAncestor(
+        decl,
+        ts.SyntaxKind.VariableDeclaration
       );
+      if (variableDeclaration == null) {
+        continue;
+      }
+      const moduleId = resolveImportModuleId(variableDeclaration);
       if (moduleId == null) {
         continue;
       }

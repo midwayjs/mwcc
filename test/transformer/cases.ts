@@ -54,6 +54,31 @@ export default [
     assertOutputFiles: ['index.js'],
   },
   {
+    name: 'resolve-imported-names',
+    projectRoot: 'test/transformation/function-call',
+    transformers: [
+      {
+        name: 'assert',
+        module: {
+          transform: (ctx: TransformationContext) => {
+            return {
+              Identifier: (node: ts.Node) => {
+                if (!ts.isIdentifier(node)) {
+                  throw 'foo';
+                }
+                if (node.escapedText === 'name') {
+                  ctx.resolveImportedNames(node);
+                }
+                return node;
+              },
+            };
+          },
+        },
+      },
+    ],
+    assertOutputFiles: [],
+  },
+  {
     name: 'call-expression-transform',
     projectRoot: 'test/transformation/function-call',
     transformers: [
