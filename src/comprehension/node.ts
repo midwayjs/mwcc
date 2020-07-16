@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { getSourceFileText, getPosition } from './utils';
+import { getSourceFileText, getCodePositionInfo } from '../util';
 export const geNodeInfo = (node: ts.Node, checker: ts.TypeChecker) => {
   let type = '';
   let params;
@@ -36,8 +36,8 @@ export const geNodeInfo = (node: ts.Node, checker: ts.TypeChecker) => {
         start: node.pos,
         end: node.end,
       },
-      start: getPosition(code, node.pos),
-      end: getPosition(code, node.end),
+      start: getCodePositionInfo(code, node.pos),
+      end: getCodePositionInfo(code, node.end),
     },
   };
 

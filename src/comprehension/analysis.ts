@@ -13,7 +13,7 @@ interface IAnalysisOptions {
   mwccConfig?: MwccConfig;
   decoratorLowerCase?: boolean;
 }
-export class TsAnalysis {
+export class Analysis {
 
   private program: Program;
   private analysisResult = {};
@@ -26,25 +26,9 @@ export class TsAnalysis {
     this.checker = this.program.getTypeChecker();
   }
 
-  public async analysis() {
-    this.analysisResult['decorator'] = await this.getDecorators();
-  }
-
-  public getResult() {
+  public analysis() {
+    this.analysisResult['decorator'] = this.getDecorators();
     return this.analysisResult;
-  }
-
-  public findParent(decorators, find) {
-    for(const decorator of decorators) {
-      if (
-        decorator.target.type === 'class' &&
-        decorator.sourceFile === find.sourceFile &&
-        decorator.target.position.range.start <= find.target.position.range.start &&
-        decorator.target.position.range.end >= find.target.position.range.end
-      ) {
-        return decorator;
-      }
-    }
   }
 
   public getProgram() {
@@ -96,6 +80,20 @@ export class TsAnalysis {
     return decoratorsMap;
   }
 
+  // find the class where the decorator is decorating the target
+  private findParent(decorators, find) {
+    for(const decorator of decorators) {
+      if (
+        decorator.target.type === 'class' &&
+        decorator.sourceFile === find.sourceFile &&
+        decorator.target.position.range.start <= find.target.position.range.start &&
+        decorator.target.position.range.end >= find.target.position.range.end
+      ) {
+        return decorator;
+      }
+    }
+  }
+
   private analysisDecorator(decorator: ts.Decorator) {
     if (!ts.isCallExpression(decorator.expression)) {
       return;
@@ -133,10 +131,3 @@ export class TsAnalysis {
     target[decoratorName].push(source);
   }
 }
-
-
-export const tsAnalysisInstance = async (options: IAnalysisOptions) => {
-  const analysisInstance = new TsAnalysis(options);
-  await analysisInstance.analysis();  
-  return analysisInstance.getResult();
-};

@@ -1,14 +1,15 @@
 import ts from 'typescript';
-import { getSourceFileText, getPosition } from './utils';
+import { getSourceFileText, getCodePositionInfo } from '../util';
+import { formatParams } from './params';
 export const getExpressionBaseInfo = (expression) => {
   if (!expression?.expression || !ts.isCallExpression(expression)) {
     return;
   }
   const code = getSourceFileText(expression);
 
-  let params = [];
+  let params: any = [];
   if (expression.arguments?.length) {
-    // params = this.formatParams(expression.arguments);
+    params = formatParams(expression.arguments);
   }
   const expressionName: string = (expression.expression as ts.Identifier).escapedText.toString();
   return {
@@ -19,8 +20,8 @@ export const getExpressionBaseInfo = (expression) => {
         start: expression.pos,
         end: expression.end,
       },
-      start: getPosition(code, expression.pos),
-      end: getPosition(code, expression.end),
+      start: getCodePositionInfo(code, expression.pos),
+      end: getCodePositionInfo(code, expression.end),
     },
   };
 };

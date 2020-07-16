@@ -82,3 +82,24 @@ export function safeJsonParse<T = any>(str: string): T | undefined {
   }
   return undefined;
 }
+
+export const getSourceFileText = (nodeOrigin: ts.Node) => {
+  let node = nodeOrigin;
+  while (!ts.isSourceFile(node) && node.parent) {
+    node = node.parent;
+  }
+  return node.getText();
+}
+
+export const getCodePositionInfo = (code: string, pos: number) => {
+  try {
+    const codeArr: string[] = code.substr(0, pos).split('\n');
+    const ln = codeArr.length - 1;
+    return {
+      ln,
+      col: codeArr[ln]?.length || 0,
+      index: pos,
+    };
+  } catch {  }
+  return { ln: 0, col: 0, index: 0 };
+}
