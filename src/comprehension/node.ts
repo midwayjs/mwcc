@@ -42,7 +42,7 @@ export const geNodeInfo = (node: ts.Node, checker: ts.TypeChecker) => {
   };
 
   return target;
-};
+}
 
 const getType = (symbol: ts.Symbol, checker) => {
   const checkerType: ts.Type = checker.getTypeOfSymbolAtLocation(
@@ -53,4 +53,4 @@ const getType = (symbol: ts.Symbol, checker) => {
     type: checker.typeToString(checkerType).toLowerCase(),
     checkerType,
   };
-}
+};

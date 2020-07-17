@@ -35,7 +35,6 @@ export const getTypeByKind = (kind) => {
     case ts.SyntaxKind.TrueKeyword:
       return 'true';
   }
-  
   return 'unknown';
 }
 
@@ -51,7 +50,6 @@ export const getParamBySymbol = (symbol: ts.Symbol) => {
       type = getTypeByKind(valueDeclaration.kind);
     }
   }
-  
   
   switch(type) {
     case 'string':
@@ -73,4 +71,4 @@ export const getParamBySymbol = (symbol: ts.Symbol) => {
       return param;
   }
   return text;
-}
+};

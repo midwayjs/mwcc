@@ -35,3 +35,44 @@ export interface MwccConfig {
     bundler?: BundlerOptions;
   };
 }
+
+
+export interface AnalysisResult {
+  decorator: {
+    [decoratorName: string]: AnalysisDecoratorInfo[]; 
+  };
+}
+
+export interface AnalysisDecoratorInfo {
+  name: string;
+  sourceFile: string;
+  params: any[];
+  position: IPositoin;
+  target: {
+    type: string;
+    name: string;
+    position: IPositoin;
+    params?: any[];
+    response?: any;
+  };
+  childDecorators?: {
+    [decoratorName: string]: AnalysisDecoratorInfo[];
+  };
+}
+
+export interface IPositoin {
+  range: {
+    start: number;
+    end: number;
+  };
+  start: {
+    ln: number;
+    col: number;
+    index: number;
+  };
+  end: {
+    ln: number;
+    col: number;
+    index: number;
+  };
+}

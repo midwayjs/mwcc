@@ -102,4 +102,4 @@ export const getCodePositionInfo = (code: string, pos: number) => {
     };
   } catch {  }
   return { ln: 0, col: 0, index: 0 };
-}
+};

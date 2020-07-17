@@ -1,34 +1,36 @@
 import ts from 'typescript';
-import { MwccConfig } from '../type';
+import { MwccConfig, AnalysisResult, AnalysisDecoratorInfo } from '../type';
 import { CompilerHost} from '../compiler-host';
 import { Program} from '../program';
 import { query } from '../tsquery';
 import { getExpressionBaseInfo } from './expression';
 import { geNodeInfo } from './node';
 
-interface IAnalysisOptions {
+interface IAnalyzeOptions {
   program?: Program;
   compilerHost?: CompilerHost;
   projectDir?: string;
   mwccConfig?: MwccConfig;
   decoratorLowerCase?: boolean;
 }
-export class Analysis {
+export class Analyzer {
 
   private program: Program;
-  private analysisResult = {};
-  private options: IAnalysisOptions;
+  private analyzeResult: AnalysisResult = {
+    decorator: {}
+  };
+  private options: IAnalyzeOptions;
   private checker: ts.TypeChecker;
 
-  constructor(options: IAnalysisOptions) {
+  constructor(options: IAnalyzeOptions) {
     this.options = options || {};
     this.program = this.initProgram(options);
     this.checker = this.program.getTypeChecker();
   }
 
-  public analysis() {
-    this.analysisResult['decorator'] = this.getDecorators();
-    return this.analysisResult;
+  public analyze() {
+    this.analyzeResult.decorator = this.getDecorators();
+    return this.analyzeResult;
   }
 
   public getProgram() {
@@ -36,7 +38,7 @@ export class Analysis {
   }
 
   // program initialize
-  private initProgram(options: IAnalysisOptions) {
+  private initProgram(options: IAnalyzeOptions) {
     const { program, compilerHost, projectDir, mwccConfig } = options;
     if (program) {
       return program;
@@ -58,7 +60,8 @@ export class Analysis {
         'ClassDeclaration Decorator'
       ) as ts.Decorator[];
       decorators.forEach((decorator: ts.Decorator) => {
-        const decoratorInfo = this.analysisDecorator(decorator);
+        const decoratorInfo: AnalysisDecoratorInfo | undefined = this.analyzeDecorator(decorator);
+        console.log('decoratorInfo', decoratorInfo);
         if (decoratorInfo) {
           decoratorList.push(decoratorInfo);
           this.assignDecorators(decoratorsMap, decoratorInfo);
@@ -94,7 +97,7 @@ export class Analysis {
     }
   }
 
-  private analysisDecorator(decorator: ts.Decorator) {
+  private analyzeDecorator(decorator: ts.Decorator) {
     if (!ts.isCallExpression(decorator.expression)) {
       return;
     }
@@ -110,7 +113,7 @@ export class Analysis {
     if (this.options.decoratorLowerCase) {
       name = name.toLowerCase();
     }
-    const decoratorInfo = {
+    const decoratorInfo: AnalysisDecoratorInfo = {
       name,
       sourceFile: sourceInfo.sourceFile,
       params: expressionInfo.params,

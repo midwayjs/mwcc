@@ -1,13 +1,13 @@
-import { Analysis } from '../src';
+import { Analyzer } from '../src';
 import assert from 'assert';
 import { resolve } from 'path';
 
-describe('analysis', () => {
-  it.only('analysis decorator info', async () => {
-    const analysisInstance  = new Analysis({
-      projectDir: resolve(__dirname, './analysis/decorators/src')
+describe('analyze', () => {
+  it('analyze decorator info', async () => {
+    const analyzeInstance  = new Analyzer({
+      projectDir: resolve(__dirname, './analyze/decorators/src')
     });
-    const result: any = analysisInstance.analysis();
+    const result: any = analyzeInstance.analyze();
     // console.log('result', JSON.stringify(result, null, ' '));
     assert(result.decorator.Provider[0].target.type === 'class');
     assert(result.decorator.Provider[0].target.name === 'Test');
