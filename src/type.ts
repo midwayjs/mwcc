@@ -47,11 +47,11 @@ export interface AnalyzeDecoratorInfo {
   name: string;
   sourceFile: string;
   params: any[];
-  position: IPositoin;
+  position: AnalyzePositoin;
   target: {
     type: string;
     name: string;
-    position: IPositoin;
+    position: AnalyzePositoin;
     params?: any[];
     response?: any;
   };
@@ -60,7 +60,7 @@ export interface AnalyzeDecoratorInfo {
   };
 }
 
-export interface IPositoin {
+export interface AnalyzePositoin {
   range: {
     start: number;
     end: number;
