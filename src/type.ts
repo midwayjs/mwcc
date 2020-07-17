@@ -37,13 +37,13 @@ export interface MwccConfig {
 }
 
 
-export interface AnalysisResult {
+export interface AnalyzeResult {
   decorator: {
-    [decoratorName: string]: AnalysisDecoratorInfo[]; 
+    [decoratorName: string]: AnalyzeDecoratorInfo[]; 
   };
 }
 
-export interface AnalysisDecoratorInfo {
+export interface AnalyzeDecoratorInfo {
   name: string;
   sourceFile: string;
   params: any[];
@@ -56,7 +56,7 @@ export interface AnalysisDecoratorInfo {
     response?: any;
   };
   childDecorators?: {
-    [decoratorName: string]: AnalysisDecoratorInfo[];
+    [decoratorName: string]: AnalyzeDecoratorInfo[];
   };
 }
 

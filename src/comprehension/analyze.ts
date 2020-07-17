@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { MwccConfig, AnalysisResult, AnalysisDecoratorInfo } from '../type';
+import { MwccConfig, AnalyzeResult, AnalyzeDecoratorInfo } from '../type';
 import { CompilerHost} from '../compiler-host';
 import { Program} from '../program';
 import { query } from '../tsquery';
@@ -16,7 +16,7 @@ interface IAnalyzeOptions {
 export class Analyzer {
 
   private program: Program;
-  private analyzeResult: AnalysisResult = {
+  private analyzeResult: AnalyzeResult = {
     decorator: {}
   };
   private options: IAnalyzeOptions;
@@ -60,7 +60,7 @@ export class Analyzer {
         'ClassDeclaration Decorator'
       ) as ts.Decorator[];
       decorators.forEach((decorator: ts.Decorator) => {
-        const decoratorInfo: AnalysisDecoratorInfo | undefined = this.analyzeDecorator(decorator);
+        const decoratorInfo: AnalyzeDecoratorInfo | undefined = this.analyzeDecorator(decorator);
         console.log('decoratorInfo', decoratorInfo);
         if (decoratorInfo) {
           decoratorList.push(decoratorInfo);
@@ -113,7 +113,7 @@ export class Analyzer {
     if (this.options.decoratorLowerCase) {
       name = name.toLowerCase();
     }
-    const decoratorInfo: AnalysisDecoratorInfo = {
+    const decoratorInfo: AnalyzeDecoratorInfo = {
       name,
       sourceFile: sourceInfo.sourceFile,
       params: expressionInfo.params,
