@@ -61,7 +61,6 @@ export class Analyzer {
       ) as ts.Decorator[];
       decorators.forEach((decorator: ts.Decorator) => {
         const decoratorInfo: AnalyzeDecoratorInfo | undefined = this.analyzeDecorator(decorator);
-        console.log('decoratorInfo', decoratorInfo);
         if (decoratorInfo) {
           decoratorList.push(decoratorInfo);
           this.assignDecorators(decoratorsMap, decoratorInfo);
