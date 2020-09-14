@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 
 const defaultTnvmDir = path.resolve(os.homedir(), '.tnvm');
-const tnvmScriptPath = path.resolve(__dirname, '../../script/tnvm.sh');
+const tnvmScriptPath = path.resolve(__dirname, '../../bin/tnvm.sh');
 
 export class TnvmAgent {
   private shell: string;

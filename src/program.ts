@@ -5,6 +5,7 @@ import { safeJsonParse, assert } from './util';
 import path from 'path';
 import bundler from './feature/bundler';
 import { MwccConfig } from './type';
+import { version } from './version';
 
 export interface MwccContext {
   config: MwccConfig;
@@ -194,7 +195,7 @@ export class Program {
         outputFiles: this.context.outFiles,
       },
       versions: {
-        mwcc: require('../package.json').version,
+        mwcc: version,
         typescript: require(require.resolve('typescript/package.json')).version,
       },
     };

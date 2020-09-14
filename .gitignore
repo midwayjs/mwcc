@@ -10,3 +10,4 @@ coverage
 !.prettierrc.js
 
 src/tsquery/parser.js
+src/version.ts

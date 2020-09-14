@@ -9,7 +9,7 @@ describe =
 
 describe('tnvm', () => {
   const version = 'node-v12.0.0';
-  const agent = new TnvmAgent(path.resolve('.tnvm'));
+  const agent = new TnvmAgent(path.resolve(__dirname, '.tnvm'));
 
   describe('install', () => {
     before(async () => {
@@ -38,7 +38,7 @@ describe('tnvm', () => {
       const execPath = await agent.getExecPathOfVersion(version);
       assert.strictEqual(
         execPath,
-        path.resolve(__dirname, '../.tnvm/versions/node/v12.0.0/bin/node')
+        path.resolve(__dirname, './.tnvm/versions/node/v12.0.0/bin/node')
       );
     });
 

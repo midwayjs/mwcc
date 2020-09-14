@@ -1,28 +1,20 @@
 {
+  "extends": "./node_modules/mwts/tsconfig.json",
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
+    "rootDir": ".",
     "outDir": "./dist",
-    "rootDir": "src",
     "allowJs": true,
-    "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
     "stripInternal": true,
-    "pretty": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "noImplicitReturns": true,
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "esModuleInterop": true
   },
-  "include": ["src"],
-  "exclude": []
+  "include": ["src", "test"],
+  "exclude": ["test/analyze", "test/cases", "test/comprehension-projects", "test/transformation"]
 }

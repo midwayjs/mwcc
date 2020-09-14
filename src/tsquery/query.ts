@@ -246,11 +246,13 @@ export function matches(node: ts.Node, selector, ancestry: ts.Node[]) {
 
     case 'class':
       switch (selector.name.toLowerCase()) {
+        // @ts-ignore
         case 'statement':
           if (ts.SyntaxKind[node.kind].slice(-9) === 'Statement') return true;
         // fallthrough: interface Declaration <: Statement { }
         case 'declaration':
           return ts.SyntaxKind[node.kind].slice(-11) === 'Declaration';
+        // @ts-ignore
         case 'pattern':
           if (ts.SyntaxKind[node.kind].slice(-7) === 'Pattern') return true;
         // fallthrough: interface Expression <: Node, Pattern { }

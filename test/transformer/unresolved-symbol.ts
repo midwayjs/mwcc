@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { TransformationContext } from '../../';
+import { TransformationContext } from '../../src';
 import { template } from '../../src/template';
 
 export default {

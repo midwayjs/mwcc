@@ -2,15 +2,18 @@
   "name": "@midwayjs/mwcc",
   "version": "0.3.3",
   "description": "Midway Compiler Collection",
-  "main": "dist/index",
-  "typings": "dist/index.d.ts",
+  "main": "dist/src/index",
+  "typings": "dist/src/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
     "lint": "mwts check",
     "lint:fix": "mwts fix",
-    "build": "pegjs src/tsquery/parser.pegjs && tsc -p .",
+    "build": "pegjs src/tsquery/parser.pegjs && node script/version.js && tsc -p . && cpx \"bin/*\" dist/bin",
+    "build:test": "cpx \"test/{analyze,cases,comprehension-projects,transformation}/**/*\" dist/test",
     "test": "mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
-    "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 test/**/*.test.ts"
+    "test:js": "mocha -t 1000000 dist/test/**/*.test.js",
+    "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
+    "cov:js": "nyc --reporter text --reporter lcov mocha -t 1000000 dist/test/**/*.test.js"
   },
   "keywords": [
     "midway",
@@ -18,14 +21,14 @@
     "collection"
   ],
   "files": [
-    "bin",
-    "dist",
-    "script"
+    "dist/bin",
+    "dist/src"
   ],
   "license": "MIT",
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.9.5",
+    "cpx": "^1.5.0",
     "globby": "^11.0.0",
     "mocha": "^7.1.1",
     "mwts": "^1.0.6",

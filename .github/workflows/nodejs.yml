@@ -7,14 +7,11 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x, 12.x]
-        typescript-version: [3.9.x]
         os: [ubuntu-latest]
         include:
           - node-version: 12.x
-            typescript-version: 3.9.x
             os: windows-latest
           - node-version: 12.x
-            typescript-version: 3.9.x
             os: macos-latest
 
     runs-on: ${{ matrix.os }}
@@ -24,6 +21,25 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install && npm install typescript@${{ matrix.typescript-version }}
+    - run: npm install
     - run: npm run build --if-present
     - run: npm run cov
+
+  build-typescript-canary:
+    strategy:
+      matrix:
+        node-version: [12.x]
+        typescript-version: [3.9.x, 4.0.x]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - run: npm run build && npm run build:test
+    - run: npm install typescript@${{ matrix.typescript-version }}
+    - run: npm run cov:js
