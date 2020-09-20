@@ -33,8 +33,8 @@ export function visit<T extends ts.Node>(
 ) {
   const before = visitor.enter?.(node, ancestor);
   // this `node` and its children may be a synthetic node that doesn't have a `parent` set.
-  if (before && ancestor) {
-    setParent(before, ancestor);
+  if (before && before.parent == null && ancestor) {
+    setParent(before, node.parent);
   }
   if (before) {
     /**
@@ -52,8 +52,8 @@ export function visit<T extends ts.Node>(
   );
   result = visitor.leave?.(node) ?? result;
   // this `node` and its children may be a synthetic node that doesn't have a `parent` set.
-  if (result && ancestor) {
-    setParent(result, ancestor);
+  if (result && result.parent == null && ancestor) {
+    setParent(result, node.parent);
   }
 
   return result;

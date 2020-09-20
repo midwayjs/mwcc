@@ -54,6 +54,16 @@ export default [
     assertOutputFiles: ['index.js'],
   },
   {
+    name: 'export-name',
+    projectRoot: 'test/transformation/export-name',
+    transformers: [
+      {
+        name: require.resolve('./export-name'),
+      },
+    ],
+    assertOutputFiles: ['index.js'],
+  },
+  {
     name: 'resolve-imported-names',
     projectRoot: 'test/transformation/function-call',
     transformers: [
