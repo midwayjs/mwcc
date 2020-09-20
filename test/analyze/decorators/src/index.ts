@@ -10,7 +10,6 @@ interface IResult {
 
 @Provider()
 export class Test {
-
   @Inject('context')
   private ctx: any;
 
@@ -21,12 +20,21 @@ export class Test {
     console.log('init');
   }
 
-  @Func('index.handler', { method: 'GET', path: '/api/test', testNum: 123, testBoolean: false, testArray: [ 'ele-string', true, 123] })
-  public async handler(event: { d: { name: string}; name: string}): Promise<IResult> {
+  @Func('index.handler', {
+    method: 'GET',
+    path: '/api/test',
+    testNum: 123,
+    testBoolean: false,
+    testArray: ['ele-string', true, 123],
+  })
+  public async handler(event: {
+    d: { name: string };
+    name: string;
+  }): Promise<IResult> {
     console.log(event.d.name, event.name, this.ctx, this.oth);
     return {
       success: true,
-      data: [ 1, 2, 3 ],
+      data: [1, 2, 3],
     };
   }
 }

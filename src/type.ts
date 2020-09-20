@@ -36,10 +36,9 @@ export interface MwccConfig {
   };
 }
 
-
 export interface AnalyzeResult {
   decorator: {
-    [decoratorName: string]: AnalyzeDecoratorInfo[]; 
+    [decoratorName: string]: AnalyzeDecoratorInfo[];
   };
 }
 

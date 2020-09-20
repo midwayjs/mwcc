@@ -1,7 +1,6 @@
 import ts from 'typescript';
 export const formatParams = (args: ts.NodeArray<ts.Expression>) => {
   return args.map((arg: any) => {
-    
     if (arg.name) {
       return arg.name.escapedText;
     }
@@ -17,11 +16,11 @@ export const formatParams = (args: ts.NodeArray<ts.Expression>) => {
     }
     return '';
   });
-}
+};
 
-export const getTypeByKind = (kind) => {
-  switch(kind) {
-    case ts.SyntaxKind.NumericLiteral: 
+export const getTypeByKind = kind => {
+  switch (kind) {
+    case ts.SyntaxKind.NumericLiteral:
     case ts.SyntaxKind.BigIntLiteral:
       return 'number';
     case ts.SyntaxKind.StringLiteral:
@@ -31,12 +30,12 @@ export const getTypeByKind = (kind) => {
     case ts.SyntaxKind.ObjectLiteralExpression:
       return 'object';
     case ts.SyntaxKind.FalseKeyword:
-      return 'false'
+      return 'false';
     case ts.SyntaxKind.TrueKeyword:
       return 'true';
   }
   return 'unknown';
-}
+};
 
 export const getParamBySymbol = (symbol: ts.Symbol) => {
   let type;
@@ -44,24 +43,31 @@ export const getParamBySymbol = (symbol: ts.Symbol) => {
   const valueDeclaration: any = symbol?.valueDeclaration || symbol;
   if (valueDeclaration) {
     if (valueDeclaration.initializer) {
-      text = valueDeclaration.initializer.text || valueDeclaration.initializer.name?.escapedText || text || '';
+      text =
+        valueDeclaration.initializer.text ||
+        valueDeclaration.initializer.name?.escapedText ||
+        text ||
+        '';
       type = getTypeByKind(valueDeclaration.initializer.kind);
     } else {
       type = getTypeByKind(valueDeclaration.kind);
     }
   }
-  
-  switch(type) {
+
+  switch (type) {
     case 'string':
       return text;
-    case 'number': return + (text || 0);
+    case 'number':
+      return +(text || 0);
     case 'array':
       return (valueDeclaration?.initializer?.elements || []).map(item => {
         return getParamBySymbol(item);
       });
-    case 'false': return false;
-    case 'true': return true;
-    case 'object':
+    case 'false':
+      return false;
+    case 'true':
+      return true;
+    case 'object': {
       const param: any = {};
       if (symbol.members) {
         symbol.members.forEach((value, key) => {
@@ -69,6 +75,7 @@ export const getParamBySymbol = (symbol: ts.Symbol) => {
         });
       }
       return param;
+    }
   }
   return text;
 };

@@ -89,7 +89,7 @@ export const getSourceFileText = (nodeOrigin: ts.Node) => {
     node = node.parent;
   }
   return node.getText();
-}
+};
 
 export const getCodePositionInfo = (code: string, pos: number) => {
   try {
@@ -100,6 +100,8 @@ export const getCodePositionInfo = (code: string, pos: number) => {
       col: codeArr[ln]?.length || 0,
       index: pos,
     };
-  } catch {  }
+  } catch {
+    /** ignore */
+  }
   return { ln: 0, col: 0, index: 0 };
 };

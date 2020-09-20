@@ -10,12 +10,12 @@ export const geNodeInfo = (node: ts.Node, checker: ts.TypeChecker) => {
     type = 'class';
   } else if (ts.isMethodDeclaration(node)) {
     type = 'method';
-    params = node?.parameters?.map((param) => {
-      const symbolParams =checker.getSymbolAtLocation(param.name);
-      return; // Todo 
+    params = node?.parameters?.map(param => {
+      const symbolParams = checker.getSymbolAtLocation(param.name);
+      return; // Todo
     });
     const symbol = checker.getSymbolAtLocation((node as any).name);
-    const { checkerType } = getType((symbol as ts.Symbol), checker);
+    const { checkerType } = getType(symbol as ts.Symbol, checker);
     const signatures = checkerType.getCallSignatures()[0];
     // Todo: response = serializeType(signatures.getReturnType());
   } else if (ts.isConstructorDeclaration(node)) {
@@ -42,12 +42,12 @@ export const geNodeInfo = (node: ts.Node, checker: ts.TypeChecker) => {
   };
 
   return target;
-}
+};
 
 const getType = (symbol: ts.Symbol, checker) => {
   const checkerType: ts.Type = checker.getTypeOfSymbolAtLocation(
     symbol,
-    symbol.valueDeclaration,
+    symbol.valueDeclaration
   );
   return {
     type: checker.typeToString(checkerType).toLowerCase(),

@@ -4,7 +4,7 @@ export function foo() {
 
 export const useBar = function ({ name }) {
   return name + 'bar';
-}
+};
 
 export const useQuz = () => {
   return 'quz';

@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { MwccConfig, AnalyzeResult, AnalyzeDecoratorInfo } from '../type';
-import { CompilerHost} from '../compiler-host';
-import { Program} from '../program';
+import { CompilerHost } from '../compiler-host';
+import { Program } from '../program';
 import { query } from '../tsquery';
 import { getExpressionBaseInfo } from './expression';
 import { geNodeInfo } from './node';
@@ -14,10 +14,9 @@ interface IAnalyzeOptions {
   decoratorLowerCase?: boolean;
 }
 export class Analyzer {
-
   private program: Program;
   private analyzeResult: AnalyzeResult = {
-    decorator: {}
+    decorator: {},
   };
   private options: IAnalyzeOptions;
   private checker: ts.TypeChecker;
@@ -60,7 +59,9 @@ export class Analyzer {
         'ClassDeclaration Decorator'
       ) as ts.Decorator[];
       decorators.forEach((decorator: ts.Decorator) => {
-        const decoratorInfo: AnalyzeDecoratorInfo | undefined = this.analyzeDecorator(decorator);
+        const decoratorInfo:
+          | AnalyzeDecoratorInfo
+          | undefined = this.analyzeDecorator(decorator);
         if (decoratorInfo) {
           decoratorList.push(decoratorInfo);
           this.assignDecorators(decoratorsMap, decoratorInfo);
@@ -68,7 +69,7 @@ export class Analyzer {
       });
     }
 
-    for(const decorator of decoratorList) {
+    for (const decorator of decoratorList) {
       if (decorator.target.type !== 'class') {
         const parent = this.findParent(decoratorList, decorator);
         if (parent) {
@@ -84,11 +85,12 @@ export class Analyzer {
 
   // find the class where the decorator is decorating the target
   private findParent(decorators, find) {
-    for(const decorator of decorators) {
+    for (const decorator of decorators) {
       if (
         decorator.target.type === 'class' &&
         decorator.sourceFile === find.sourceFile &&
-        decorator.target.position.range.start <= find.target.position.range.start &&
+        decorator.target.position.range.start <=
+          find.target.position.range.start &&
         decorator.target.position.range.end >= find.target.position.range.end
       ) {
         return decorator;
@@ -117,7 +119,7 @@ export class Analyzer {
       sourceFile: sourceInfo.sourceFile,
       params: expressionInfo.params,
       position: expressionInfo.position,
-      target: geNodeInfo(decorator.parent, this.checker)
+      target: geNodeInfo(decorator.parent, this.checker),
     };
     return decoratorInfo;
   }

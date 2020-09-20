@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { getSourceFileText, getCodePositionInfo } from '../util';
 import { formatParams } from './params';
-export const getExpressionBaseInfo = (expression) => {
+export const getExpressionBaseInfo = expression => {
   if (!expression?.expression || !ts.isCallExpression(expression)) {
     return;
   }
