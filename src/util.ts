@@ -83,6 +83,15 @@ export function safeJsonParse<T = any>(str: string): T | undefined {
   return undefined;
 }
 
+export function tryCatch<T extends (...args: unknown[]) => unknown>(fn: T, ...args: Parameters<T>): { value?: ReturnType<T>, error?: unknown } {
+  try {
+    const value = fn(...args) as ReturnType<T>;
+    return { value };
+  } catch (error) {
+    return { error };
+  }
+}
+
 export const getSourceFileText = (nodeOrigin: ts.Node) => {
   let node = nodeOrigin;
   while (!ts.isSourceFile(node) && node.parent) {

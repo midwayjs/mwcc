@@ -1,21 +1,20 @@
 import * as childProcess from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
+import { tryCatch } from '../util';
 
 const defaultTnvmDir = path.resolve(os.homedir(), '.tnvm');
 const tnvmScriptPath = path.resolve(__dirname, '../../script/tnvm.sh');
 
 export class TnvmAgent {
-  private shell: string;
+  private shell: string | undefined;
   private enabled = false;
   // eslint-disable-next-line no-useless-constructor
   constructor(private tnvmDir: string = defaultTnvmDir) {
-    if (os.platform() === 'win32') {
-      this.shell = '';
-    } else {
+    if (os.platform() !== 'win32') {
       this.shell = this.findBash();
-      this.enabled = true;
     }
+    this.enabled = this.shell != null;
   }
 
   async listVersions(type: string): Promise<string[]> {
@@ -103,13 +102,11 @@ export class TnvmAgent {
   }
 
   private findBash() {
-    try {
-      const path = childProcess.execSync('type -p bash', { encoding: 'utf8' });
-      return path.trim();
-    } catch {
-      const path = childProcess.execSync('which bash', { encoding: 'utf8' });
-      return path.trim();
+    let { value: path } = tryCatch(() => childProcess.execSync('type -p bash', { encoding: 'utf8' }));
+    if (path == null) {
+      ({ value: path } = tryCatch(() => childProcess.execSync('which bash', { encoding: 'utf8' })));
     }
+    return path?.trim();
   }
 
   private assertPlatform() {
