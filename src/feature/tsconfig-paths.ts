@@ -3,7 +3,6 @@ import { loadConfig, createMatchPath } from 'tsconfig-paths';
 import Module from 'module';
 import fse from 'fs-extra';
 import { TransformationContext } from '../transformation/transformation-context';
-import { info } from '../logger';
 
 export default {
   transform(ctx: TransformationContext) {
@@ -12,8 +11,6 @@ export default {
     if (config.resultType !== 'success') {
       return {};
     }
-
-    info('tsconfig path aliases enabled');
 
     const matchPath = createMatchPath(
       config.absoluteBaseUrl,
