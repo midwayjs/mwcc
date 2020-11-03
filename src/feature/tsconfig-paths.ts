@@ -1,27 +1,26 @@
 import ts from 'typescript';
-import { loadConfig, createMatchPath } from 'tsconfig-paths';
 import Module from 'module';
-import fse from 'fs-extra';
+import fs from 'fs';
 import { TransformationContext } from '../transformation/transformation-context';
+import path from 'path';
 
 export default {
   transform(ctx: TransformationContext) {
-    const config = loadConfig(ctx.getCompilerOptions().rootDir);
+    const compilerOptions = ctx.getCompilerOptions();
 
-    if (config.resultType !== 'success') {
+    if (
+      typeof compilerOptions.paths !== 'object' ||
+      Object.keys(compilerOptions.paths).length === 0
+    ) {
       return {};
     }
 
-    const matchPath = createMatchPath(
-      config.absoluteBaseUrl,
-      config.paths,
-      config.mainFields,
-      config.addMatchAll
-    );
     const coreModules = getCoreModules(Module?.builtinModules);
+    const extensions = getExtensions(compilerOptions);
 
     return {
       ImportDeclaration(node: ts.ImportDeclaration) {
+        const sourceFilePath = ctx.getSourceFileName(node);
         const moduleSpecifier = ctx.getModuleSpecifierValue(node) as string;
         const isCoreModule = coreModules[moduleSpecifier];
 
@@ -29,23 +28,38 @@ export default {
           return node;
         }
 
-        const found = matchPath(
+        const { resolvedModule } = ts.resolveModuleName(
           moduleSpecifier,
-          fse.readJSONSync,
-          fse.pathExistsSync,
-          ['.js', '.ts', '.json']
+          sourceFilePath,
+          compilerOptions,
+          ts.sys
         );
 
-        if (!found) {
+        if (!resolvedModule || resolvedModule.isExternalLibraryImport) {
           return node;
         }
+
+        const sourceFileDir = path.parse(sourceFilePath).dir;
+        let target = path.relative(
+          sourceFileDir,
+          resolvedModule.resolvedFileName
+        );
+
+        if (
+          resolvedModule.extension &&
+          extensions.includes(resolvedModule.extension)
+        ) {
+          target = target.slice(0, -resolvedModule.extension.length);
+        }
+
+        target = target[0] === '.' ? target : `./${target}`;
 
         return ts.updateImportDeclaration(
           node,
           node.decorators,
           node.modifiers,
           node.importClause,
-          ts.createStringLiteral(found)
+          ts.createStringLiteral(target)
         );
       },
     };
@@ -92,4 +106,18 @@ function getCoreModules(
   }
 
   return coreModules;
+}
+
+function getExtensions(compilerOptions: ts.CompilerOptions) {
+  const extensions = ['.ts', '.d.ts'];
+
+  if (compilerOptions.allowJs) {
+    extensions.push('.js');
+  }
+
+  if (compilerOptions.resolveJsonModule) {
+    extensions.push('.json');
+  }
+
+  return extensions;
 }
