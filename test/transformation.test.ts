@@ -4,7 +4,6 @@ import cases, { tsConfigPath } from './transformer/cases';
 import path = require('path');
 import assert = require('assert');
 import fs = require('fs');
-import os = require('os');
 
 cases.forEach(esac => {
   describe(`transformation: ${esac.name}`, () => {
@@ -57,7 +56,7 @@ describe(`transformation ${tsConfigPath.name}`, () => {
     tsConfigPath.assertOutputFiles?.forEach(it => {
       const content = readFile(path.join(projectDir, 'dist', it));
 
-      if (os.platform() === 'win32') {
+      if (process.platform === 'win32') {
         console.log(content);
       }
 

@@ -40,9 +40,10 @@ export default {
         }
 
         const sourceFileDir = path.parse(sourceFilePath).dir;
-        let target = path.relative(
-          sourceFileDir,
-          resolvedModule.resolvedFileName
+        let target = toUnix(
+          path.normalize(
+            path.relative(sourceFileDir, resolvedModule.resolvedFileName)
+          )
         );
 
         if (
@@ -120,4 +121,11 @@ function getExtensions(compilerOptions: ts.CompilerOptions) {
   }
 
   return extensions;
+}
+
+function toUnix(p: string) {
+  if (process.platform === 'win32') {
+    return p.split(path.sep).join(path.posix.sep);
+  }
+  return p;
 }
