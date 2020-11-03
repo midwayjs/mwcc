@@ -6,7 +6,7 @@ import {
 import { chainBundle } from '../util';
 import { visitMatch, parse } from '../tsquery/query';
 import { PluginModule, ConditionalTransformer } from './type';
-import { MwccConfig } from '../type';
+import { MwccConfig, TransformerPlugin } from '../type';
 
 export default function createTransformer(
   host: CompilerHost,
@@ -67,13 +67,22 @@ function loadTransformer(name: string) {
 }
 
 function loadPlugin(config: MwccConfig) {
-  if (typeof config.features?.tsc !== 'object') {
+  const tsc = config.features?.tsc;
+  if (tsc === false) {
     return [];
   }
-  if (!Array.isArray(config.features.tsc.transformers)) {
-    return [];
+
+  const transformers: TransformerPlugin[] = [
+    {
+      name: require.resolve('../feature/tsconfig-paths'),
+    },
+  ];
+
+  if (typeof tsc === 'object' && Array.isArray(tsc.transformers)) {
+    transformers.push(...tsc.transformers);
   }
-  return config.features.tsc.transformers.map(({ name, module }) => {
+
+  return transformers.map(({ name, module }) => {
     if (module) {
       return module;
     }

@@ -29,11 +29,14 @@ export interface MwccConfig {
   include?: string[];
   exclude?: string[];
   features?: {
-    tsc?:
-      | boolean
-      | { transformers: { name: string; module?: TransformerPluginModule }[] };
+    tsc?: boolean | { transformers: TransformerPlugin[] };
     bundler?: BundlerOptions;
   };
+}
+
+export interface TransformerPlugin {
+  name: string;
+  module?: TransformerPluginModule;
 }
 
 export interface AnalyzeResult {

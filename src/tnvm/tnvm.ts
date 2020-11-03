@@ -102,9 +102,13 @@ export class TnvmAgent {
   }
 
   private findBash() {
-    let { value: path } = tryCatch(() => childProcess.execSync('type -p bash', { encoding: 'utf8' }));
+    let { value: path } = tryCatch(() =>
+      childProcess.execSync('type -p bash', { encoding: 'utf8' })
+    );
     if (path == null) {
-      ({ value: path } = tryCatch(() => childProcess.execSync('which bash', { encoding: 'utf8' })));
+      ({ value: path } = tryCatch(() =>
+        childProcess.execSync('which bash', { encoding: 'utf8' })
+      ));
     }
     return path?.trim();
   }
