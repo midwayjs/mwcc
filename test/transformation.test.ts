@@ -1,4 +1,4 @@
-import { compileWithOptions } from '../src/index';
+import { compileWithOptions, MwccConfig } from '../src/index';
 import { rimraf } from './util';
 import cases from './transformer/cases';
 import path = require('path');
@@ -16,8 +16,11 @@ cases.forEach(esac => {
     });
 
     it('should transform', async () => {
-      const hintConfig = {
-        features: { tsc: { transformers: esac.transformers } },
+      const hintConfig: MwccConfig = {
+        compilerOptions: esac?.compilerOptions,
+        features: {
+          tsc: { transformers: esac.transformers },
+        },
       };
       const { diagnostics } = await compileWithOptions(
         projectDir,
@@ -32,13 +35,11 @@ cases.forEach(esac => {
 });
 
 function assertOutputFile(relPath: string, project: string) {
-  const actual = fs
-    .readFileSync(path.join(project, 'dist', relPath), 'utf8')
-    .trim()
-    .replace(/\r\n/g, '\n');
-  const expected = fs
-    .readFileSync(path.join(project, 'expect', relPath), 'utf8')
-    .trim()
-    .replace(/\r\n/g, '\n');
+  const actual = readFile(path.join(project, 'dist', relPath));
+  const expected = readFile(path.join(project, 'expect', relPath));
   assert.strictEqual(actual, expected);
+}
+
+function readFile(path: string) {
+  return fs.readFileSync(path, 'utf8').trim().replace(/\r\n/g, '\n');
 }

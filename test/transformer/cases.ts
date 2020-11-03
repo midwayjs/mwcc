@@ -196,4 +196,16 @@ export default [
       },
     ],
   },
+  {
+    name: 'tsconfig-paths',
+    projectRoot: 'test/transformation/tsconfig-paths',
+    transformers: [],
+    compilerOptions: {
+      baseUrl: '.',
+      paths: {
+        '@/*': ['./src/*'],
+      },
+    },
+    assertOutputFiles: ['index.js'],
+  },
 ];
