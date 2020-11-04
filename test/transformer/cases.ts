@@ -204,8 +204,15 @@ export default [
       baseUrl: '.',
       paths: {
         '@/*': ['./src/*'],
+        '@async/*': ['./src/async/*'],
       },
     },
+    assertOutputFiles: ['index.js'],
+  },
+  {
+    name: 'export-types',
+    projectRoot: 'test/transformation/export-types',
+    transformers: [],
     assertOutputFiles: ['index.js'],
   },
 ];

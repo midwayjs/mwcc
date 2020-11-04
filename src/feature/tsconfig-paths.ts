@@ -15,57 +15,122 @@ export default {
       return {};
     }
 
-    const coreModules = getCoreModules(Module?.builtinModules);
-    const extensions = getExtensions(compilerOptions);
-
     return {
+      // import xxx from '...'
       ImportDeclaration(node: ts.ImportDeclaration) {
+        return updateImportExportDeclaration(
+          node,
+          ctx.getSourceFileName(node),
+          compilerOptions
+        );
+      },
+      // import xxx = require('xxx')
+      ExternalModuleReference(node: ts.ExternalModuleReference) {
         const sourceFilePath = ctx.getSourceFileName(node);
-        const moduleSpecifier = ctx.getModuleSpecifierValue(node) as string;
-        const isCoreModule = coreModules[moduleSpecifier];
+        const moduleSpecifier = getModuleSpecifier(node.expression);
 
-        if (isCoreModule) {
+        if (!moduleSpecifier) {
           return node;
         }
 
-        const { resolvedModule } = ts.resolveModuleName(
+        const { isAlias, target } = matchAliasPath(
           moduleSpecifier,
           sourceFilePath,
-          compilerOptions,
-          ts.sys
+          compilerOptions
         );
 
-        if (!resolvedModule || resolvedModule.isExternalLibraryImport) {
+        if (!isAlias) {
           return node;
         }
 
-        const sourceFileDir = path.parse(sourceFilePath).dir;
-        let target = toUnix(
-          path.normalize(
-            path.relative(sourceFileDir, resolvedModule.resolvedFileName)
-          )
-        );
-
-        if (
-          resolvedModule.extension &&
-          extensions.includes(resolvedModule.extension)
-        ) {
-          target = target.slice(0, -resolvedModule.extension.length);
-        }
-
-        target = target[0] === '.' ? target : `./${target}`;
-
-        return ts.updateImportDeclaration(
+        return ts.updateExternalModuleReference(
           node,
-          node.decorators,
-          node.modifiers,
-          node.importClause,
           ts.createStringLiteral(target)
         );
+      },
+      // export xxx from '...'
+      ExportDeclaration(node: ts.ExportDeclaration) {
+        return updateImportExportDeclaration(
+          node,
+          ctx.getSourceFileName(node),
+          compilerOptions
+        );
+      },
+      // import('xxx) or require('xxx')
+      CallExpression(node: ts.CallExpression) {
+        if (!isRequire(node) && !isAsyncImport(node)) {
+          return node;
+        }
+
+        const sourceFilePath = ctx.getSourceFileName(node);
+        const moduleSpecifier = getModuleSpecifier(node.arguments[0]);
+
+        if (!moduleSpecifier) {
+          return node;
+        }
+
+        const { isAlias, target } = matchAliasPath(
+          moduleSpecifier,
+          sourceFilePath,
+          compilerOptions
+        );
+
+        if (!isAlias) {
+          return node;
+        }
+
+        return ts.updateCall(node, node.expression, node.typeArguments, [
+          ts.createStringLiteral(target),
+        ]);
       },
     };
   },
 };
+
+function matchAliasPath(
+  moduleSpecifier: string,
+  sourceFilePath: string,
+  compilerOptions: ts.CompilerOptions
+) {
+  const extensions = getExtensions(compilerOptions);
+  const coreModules = getCoreModules(Module?.builtinModules);
+
+  if (coreModules[moduleSpecifier]) {
+    return { isAlias: false, target: '' };
+  }
+
+  const { resolvedModule } = ts.resolveModuleName(
+    moduleSpecifier,
+    sourceFilePath,
+    compilerOptions,
+    ts.sys
+  );
+
+  if (!resolvedModule || resolvedModule.isExternalLibraryImport) {
+    return { isAlias: false, target: '' };
+  }
+
+  const sourceFileDir = path.dirname(sourceFilePath);
+  let target = toUnix(
+    path.normalize(
+      path.relative(sourceFileDir, resolvedModule.resolvedFileName)
+    )
+  );
+
+  if (
+    resolvedModule.extension &&
+    extensions.includes(resolvedModule.extension)
+  ) {
+    target = target.slice(0, -resolvedModule.extension.length);
+  }
+
+  target = target[0] === '.' ? target : `./${target}`;
+
+  return {
+    isAlias: true,
+    target,
+  };
+}
 
 function getCoreModules(
   builtinModules: string[] | undefined
@@ -128,4 +193,66 @@ function toUnix(p: string) {
     return p.split(path.sep).join(path.posix.sep);
   }
   return p;
+}
+
+function isRequire(node: ts.CallExpression): node is ts.CallExpression {
+  return (
+    ts.isIdentifier(node.expression) &&
+    node.expression.getText() === 'require' &&
+    ts.isStringLiteral(node.arguments[0]) &&
+    node.arguments.length === 1
+  );
+}
+
+function isAsyncImport(node: ts.CallExpression): node is ts.CallExpression {
+  return (
+    node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+    ts.isStringLiteral(node.arguments[0]) &&
+    node.arguments.length === 1
+  );
+}
+
+function getModuleSpecifier(node: ts.Node) {
+  if (!ts.isStringLiteral(node)) {
+    return undefined;
+  }
+  return node.text;
+}
+
+function updateImportExportDeclaration(
+  node: ts.ImportDeclaration | ts.ExportDeclaration,
+  sourceFilePath: string,
+  compilerOptions: ts.CompilerOptions
+) {
+  const moduleSpecifier = getModuleSpecifier(
+    node.moduleSpecifier as ts.Expression
+  );
+
+  if (!moduleSpecifier) {
+    return node;
+  }
+
+  const { isAlias, target } = matchAliasPath(
+    moduleSpecifier,
+    sourceFilePath,
+    compilerOptions
+  );
+
+  if (!isAlias) {
+    return node;
+  }
+
+  /**
+   * Transforming ImportDeclaration or ExportDeclaration causes type specifiers to be output in js files
+   * @see https://github.com/microsoft/TypeScript/issues/40603
+   * @see https://github.com/microsoft/TypeScript/issues/31446
+   */
+  Object.assign(node, {
+    moduleSpecifier: (ts as any).updateNode(
+      ts.createStringLiteral(target),
+      node.moduleSpecifier
+    ),
+  });
+
+  return node;
 }
