@@ -7,6 +7,8 @@ export { OnlyType } from '@/export/type';
 export { func } from '@/export/func';
 export { func as demoFunc } from '@/export/func';
 
+export type ImportType = import('@/export/type').OnlyType;
+
 console.log(foo, bar, util, str);
 
 async function dynamic() {

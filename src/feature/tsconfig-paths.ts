@@ -48,6 +48,31 @@ export default {
           ts.createStringLiteral(target)
         );
       },
+      // type bar = typeof import("./bar").Bar;
+      LastTypeNode(node: ts.ImportTypeNode) {
+        const sourceFilePath = ctx.getSourceFileName(node);
+        const argument = node.argument as ts.LiteralTypeNode;
+
+        const moduleSpecifier = getModuleSpecifier(argument.literal);
+        if (!moduleSpecifier) {
+          return node;
+        }
+
+        const { isAlias, target } = matchAliasPath(
+          moduleSpecifier,
+          sourceFilePath,
+          compilerOptions
+        );
+
+        if (!isAlias) {
+          return node;
+        }
+
+        // ts.updateImportTypeNode is invalid
+        return Object.assign(node, {
+          argument: ts.createLiteralTypeNode(ts.createStringLiteral(target)),
+        });
+      },
       // export xxx from '...'
       ExportDeclaration(node: ts.ExportDeclaration) {
         return updateImportExportDeclaration(
