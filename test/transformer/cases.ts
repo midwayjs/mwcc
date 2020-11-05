@@ -199,7 +199,11 @@ export default [
   {
     name: 'tsconfig-paths',
     projectRoot: 'test/transformation/tsconfig-paths',
-    transformers: [],
+    transformers: [
+      {
+        name: require.resolve('./tsconfig-paths.test'),
+      },
+    ],
     compilerOptions: {
       declaration: true,
       baseUrl: '.',
