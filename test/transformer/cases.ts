@@ -201,11 +201,19 @@ export default [
     projectRoot: 'test/transformation/tsconfig-paths',
     transformers: [],
     compilerOptions: {
+      declaration: true,
       baseUrl: '.',
       paths: {
         '@/*': ['./src/*'],
+        '@async/*': ['./src/async/*'],
       },
     },
+    assertOutputFiles: ['index.js', 'index.d.ts', 'util/index.js'],
+  },
+  {
+    name: 'export-types',
+    projectRoot: 'test/transformation/export-types',
+    transformers: [],
     assertOutputFiles: ['index.js'],
   },
 ];
