@@ -1,6 +1,5 @@
 import ts from 'typescript';
 import Module from 'module';
-import fs from 'fs';
 import { TransformationContext } from '../transformation/transformation-context';
 import path from 'path';
 
@@ -43,6 +42,11 @@ export default {
           return node;
         }
 
+        updateSourceFileResolvedModules(
+          node.getSourceFile(),
+          target,
+          moduleSpecifier
+        );
         return ts.updateExternalModuleReference(
           node,
           ts.createStringLiteral(target)
@@ -68,6 +72,11 @@ export default {
           return node;
         }
 
+        updateSourceFileResolvedModules(
+          node.getSourceFile(),
+          target,
+          moduleSpecifier
+        );
         // ts.updateImportTypeNode is invalid
         return Object.assign(node, {
           argument: ts.createLiteralTypeNode(ts.createStringLiteral(target)),
@@ -104,6 +113,11 @@ export default {
           return node;
         }
 
+        updateSourceFileResolvedModules(
+          node.getSourceFile(),
+          target,
+          moduleSpecifier
+        );
         return ts.updateCall(node, node.expression, node.typeArguments, [
           ts.createStringLiteral(target),
         ]);
@@ -278,6 +292,22 @@ function updateImportExportDeclaration(
       node.moduleSpecifier
     ),
   });
+  updateSourceFileResolvedModules(node.getSourceFile(), target, moduleSpecifier);
 
   return node;
+}
+
+function updateSourceFileResolvedModules(
+  sourceFile: ts.SourceFile,
+  newModuleText: string,
+  oldModuleText: string
+) {
+  const its = ts as unknown as InternalTS;
+  const it = its.getResolvedModule(sourceFile, oldModuleText);
+  its.setResolvedModule(sourceFile, newModuleText, it);
+}
+
+interface InternalTS {
+  getResolvedModule(sourceFile: ts.SourceFile | undefined, moduleNameText: string): unknown;
+  setResolvedModule(sourceFile: ts.SourceFile, moduleNameText: string, resolvedModule: unknown): void;
 }
