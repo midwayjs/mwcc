@@ -49,7 +49,7 @@ export default {
         );
       },
       // type bar = typeof import("./bar").Bar;
-      LastTypeNode(node: ts.ImportTypeNode) {
+      ImportType(node: ts.ImportTypeNode) {
         const sourceFilePath = ctx.getSourceFileName(node);
         const argument = node.argument as ts.LiteralTypeNode;
 

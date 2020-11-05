@@ -102,9 +102,8 @@ export function matches(node: ts.Node, selector, ancestry: ts.Node[]) {
 
     case 'identifier':
       return (
-        selector.value.toLowerCase() === ts.SyntaxKind[node.kind].toLowerCase()
+        ((ts.SyntaxKind[selector.value] as unknown) as number) === node.kind
       );
-
     case 'field': {
       const path = selector.name.split('.');
       const ancestor = ancestry[path.length - 1];
