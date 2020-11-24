@@ -12,6 +12,10 @@
     "test": "mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
     "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 test/**/*.test.ts"
   },
+  "exports": {
+    ".": "./dist/index.js",
+    "./register": "./dist/register/index.js"
+  },
   "keywords": [
     "midway",
     "compiler",

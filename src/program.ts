@@ -136,6 +136,33 @@ export class Program {
     return { summary, diagnostics: allDiagnostics };
   }
 
+  emitFile(fileName: string): string[] {
+    const output: string[] = [];
+    const sourceFile = this.program.getSourceFile(fileName);
+    const result = this.program.emit(
+      sourceFile,
+      (path, file) => {
+        if (path.endsWith('.map')) {
+          output[1] = file;
+        } else {
+          output[0] = file;
+        }
+      },
+      undefined,
+      false,
+      {
+        before: [
+          createTransformer(
+            this.host.compilerHost,
+            this.getTypeChecker(),
+            this.host.getMwccConfig()
+          ),
+        ],
+      }
+    );
+    return output;
+  }
+
   /** @internal */
   getDiagnosticReporter(): ts.DiagnosticReporter {
     if ((ts as any).createDiagnosticReporter) {
