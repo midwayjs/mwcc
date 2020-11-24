@@ -12,10 +12,6 @@
     "test": "mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
     "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 test/**/*.test.ts"
   },
-  "exports": {
-    ".": "./dist/index.js",
-    "./register": "./dist/register/index.js"
-  },
   "keywords": [
     "midway",
     "compiler",
@@ -24,7 +20,8 @@
   "files": [
     "bin",
     "dist",
-    "script"
+    "script",
+    "register.js"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -39,6 +36,7 @@
   },
   "dependencies": {
     "@midwayjs/ncc": "^0.22.2-1",
+    "debug": "^4.3.1",
     "source-map": "^0.7.3",
     "source-map-support": "^0.5.16",
     "typescript": "~3.9.3"

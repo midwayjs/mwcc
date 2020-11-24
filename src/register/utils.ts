@@ -1,4 +1,4 @@
-import { basename, extname, dirname, resolve } from 'path';
+import { basename, extname, resolve } from 'path';
 import { existsSync } from 'fs';
 export const ignoreFile = filename => {
   const ext = extname(filename);
@@ -18,17 +18,10 @@ export const assignMapToCode = (fileName: string, code = '', map = '{}') => {
   return code.slice(0, -sourceMapLength) + sourceMapContent;
 };
 
-export const findRoot = current => {
+export const findRoot = (current: string) => {
   const tsConfig = resolve(current, 'tsconfig.json');
   if (existsSync(tsConfig)) {
     return current;
   }
-  const dir = dirname(current);
-  return dir === current ? dir : findRoot(dir);
-};
-
-export const debug = (...args) => {
-  if (process.env.MWCC_DEBUG) {
-    console.log('[ MWCC ]', ...args);
-  }
+  throw new Error(`tsconfig.json does not exist in '${current}'`);
 };

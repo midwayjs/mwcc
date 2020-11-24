@@ -1,5 +1,5 @@
 import ts from 'typescript';
-
+import path from 'path';
 export function extend(...args) {
   return args.reduce((previous, current) => {
     if (current == null) {
@@ -118,6 +118,9 @@ export const getCodePositionInfo = (code: string, pos: number) => {
   return { ln: 0, col: 0, index: 0 };
 };
 
-export function normalizeSlashes(value: string): string {
-  return value.replace(/\\/g, '/');
-}
+export const toUnix = (p: string) => {
+  if (process.platform === 'win32') {
+    return p.split(path.sep).join(path.posix.sep);
+  }
+  return p;
+};

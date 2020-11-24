@@ -1,7 +1,10 @@
-import { ignoreFile, assignMapToCode, findRoot, debug } from './utils';
+import { ignoreFile, assignMapToCode, findRoot } from './utils';
 import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { resolveTsConfigFile } from '../config';
+import debug from 'debug';
+const mwccDebug = debug('mwcc');
+
 function register() {
   const old =
     require.extensions['.ts'] || require.extensions['.js'] || (() => {}); // eslint-disable-line
@@ -18,7 +21,7 @@ function register() {
     const _compile = m._compile;
     m._compile = function (code: string, fileName: string) {
       const codeAndMap = getCompiledCodeAndMap(fileName);
-      debug('codeAndMap', codeAndMap, fileName);
+      mwccDebug('codeAndMap', codeAndMap, fileName);
       return _compile.call(
         this,
         assignMapToCode(fileName, codeAndMap[0], codeAndMap[1]),
@@ -31,7 +34,7 @@ function register() {
 
 const createProgram = () => {
   const cwd = findRoot(process.cwd());
-  debug('cwd', cwd);
+  mwccDebug('cwd', cwd);
   const { config } = resolveTsConfigFile(cwd, undefined, undefined, undefined, {
     compilerOptions: {
       sourceMap: true,
@@ -41,7 +44,7 @@ const createProgram = () => {
       declaration: false,
     },
   });
-  debug('config', config);
+  mwccDebug('config', config);
   const compilerHost = new CompilerHost(cwd, config);
   const program = new Program(compilerHost);
   return program;

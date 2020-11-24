@@ -2,6 +2,7 @@ import ts from 'typescript';
 import Module from 'module';
 import { TransformationContext } from '../transformation/transformation-context';
 import path from 'path';
+import { toUnix } from '../util';
 
 export default {
   transform(ctx: TransformationContext) {
@@ -225,13 +226,6 @@ function getExtensions(compilerOptions: ts.CompilerOptions) {
   }
 
   return extensions;
-}
-
-function toUnix(p: string) {
-  if (process.platform === 'win32') {
-    return p.split(path.sep).join(path.posix.sep);
-  }
-  return p;
 }
 
 function isRequire(node: ts.CallExpression): node is ts.CallExpression {
