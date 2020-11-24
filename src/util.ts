@@ -117,3 +117,7 @@ export const getCodePositionInfo = (code: string, pos: number) => {
   }
   return { ln: 0, col: 0, index: 0 };
 };
+
+export function normalizeSlashes (value: string): string {
+  return value.replace(/\\/g, '/')
+}

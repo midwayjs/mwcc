@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import { CompilerOptionsJsonObject, MwccConfig } from './type';
-import { extend } from './util';
+import { extend, normalizeSlashes } from './util';
 import * as logger from './logger';
 
 export function getDefaultConfig(
@@ -146,7 +146,7 @@ export function resolveTsConfigFile(
     configName
   );
   let readConfig;
-  if (tsconfigPath?.startsWith(projectDir) === false) {
+  if (tsconfigPath?.startsWith(normalizeSlashes(projectDir)) === false) {
     tsconfigPath = undefined;
   }
   if (tsconfigPath != null) {
