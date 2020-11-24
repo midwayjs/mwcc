@@ -6,7 +6,7 @@ export const forkNode = (cwd, tsCode): Promise<string> => {
   return new Promise(resolve => {
     setTimeout(() => {
       resolve('timeout');
-    }, 2000);
+    }, 10000);
     try {
       const child = fork(tsCode, [], {
         cwd,
