@@ -1,5 +1,5 @@
-import { basename, extname, resolve } from 'path';
-import { existsSync } from 'fs';
+import { basename, extname } from 'path';
+
 export const ignoreFile = filename => {
   const ext = extname(filename);
   return ext !== '.ts' || /(?:^|\/)node_modules\//.test(filename);
@@ -16,12 +16,4 @@ export const assignMapToCode = (fileName: string, code = '', map = '{}') => {
   const sourceMapLength =
     `${basename(fileName)}.map`.length + (3 - extname(fileName).length);
   return code.slice(0, -sourceMapLength) + sourceMapContent;
-};
-
-export const findRoot = (current: string) => {
-  const tsConfig = resolve(current, 'tsconfig.json');
-  if (existsSync(tsConfig)) {
-    return current;
-  }
-  throw new Error(`tsconfig.json does not exist in '${current}'`);
 };

@@ -1,8 +1,11 @@
-import { ignoreFile, assignMapToCode, findRoot } from './utils';
+import { ignoreFile, assignMapToCode } from './utils';
 import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { resolveTsConfigFile } from '../config';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 import debug from 'debug';
+
 const mwccDebug = debug('mwcc');
 
 function register() {
@@ -33,7 +36,10 @@ function register() {
 }
 
 const createProgram = () => {
-  const cwd = findRoot(process.cwd());
+  const cwd = process.cwd();
+  if (!existsSync(resolve(cwd, 'tsconfig.json'))) {
+    throw new Error(`tsconfig.json does not exist in '${cwd}'`);
+  }
   mwccDebug('cwd', cwd);
   const { config } = resolveTsConfigFile(cwd, undefined, undefined, undefined, {
     compilerOptions: {

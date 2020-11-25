@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import path from 'path';
+
 export function extend(...args) {
   return args.reduce((previous, current) => {
     if (current == null) {
