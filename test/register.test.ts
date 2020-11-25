@@ -32,10 +32,4 @@ describe('register', () => {
     const data: string = await forkNode(cwd, tsCode);
     assert(data === '123:async');
   });
-  it('fork node ts register in source dir', async () => {
-    const cwd = join(__dirname, 'register/tsconfig-paths/src');
-    const tsCode = join(cwd, 'index.ts');
-    const data: string = await forkNode(cwd, tsCode);
-    assert(data === '123:async');
-  });
 });
