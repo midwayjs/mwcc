@@ -1,4 +1,5 @@
-import { ignoreFile, assignMapToCode, debug } from './utils';
+import { ignoreFile, assignMapToCode } from './utils';
+import { debug } from '../util';
 import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { resolveTsConfigFile } from '../config';
