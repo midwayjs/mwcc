@@ -136,16 +136,16 @@ export class Program {
     return { summary, diagnostics: allDiagnostics };
   }
 
-  emitFile(fileName: string): string[] {
-    const output: string[] = [];
+  emitFile(fileName: string): { code: string; map: string } {
+    const output = { code: '', map: '' };
     const sourceFile = this.program.getSourceFile(fileName);
-    const result = this.program.emit(
+    this.program.emit(
       sourceFile,
       (path, file) => {
         if (path.endsWith('.map')) {
-          output[1] = file;
+          output.map = file;
         } else {
-          output[0] = file;
+          output.code = file;
         }
       },
       undefined,

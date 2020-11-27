@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import path from 'path';
+import createDebug from 'debug';
 
 export function extend(...args) {
   return args.reduce((previous, current) => {
@@ -125,3 +126,5 @@ export const toUnix = (p: string) => {
   }
   return p;
 };
+
+export const debug = createDebug('mwcc');

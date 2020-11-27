@@ -1,8 +1,7 @@
 import * as ts from 'typescript';
 import * as path from 'path';
 import { CompilerOptionsJsonObject, MwccConfig } from './type';
-import { extend, toUnix } from './util';
-import * as logger from './logger';
+import { extend, toUnix, debug } from './util';
 
 export function getDefaultConfig(
   projectDir: string,
@@ -181,7 +180,7 @@ function overrideCompilerOptions(
   if (typeof target[key] === 'string' && target[key].toLowerCase() === val) {
     return;
   }
-  logger.warning(`override compilerOptions.${key} with ${JSON.stringify(val)}`);
+  debug(`override compilerOptions.${key} with ${JSON.stringify(val)}`);
   if (val == null) {
     delete compilerOptions[key];
   } else {

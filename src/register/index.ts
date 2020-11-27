@@ -1,12 +1,9 @@
-import { ignoreFile, assignMapToCode } from './utils';
+import { ignoreFile, assignMapToCode, debug } from './utils';
 import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { resolveTsConfigFile } from '../config';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
-import debug from 'debug';
-
-const mwccDebug = debug('mwcc');
 
 function register() {
   const old =
@@ -22,12 +19,12 @@ function register() {
     }
 
     const _compile = m._compile;
-    m._compile = function (code: string, fileName: string) {
+    m._compile = function (_: string, fileName: string) {
       const codeAndMap = getCompiledCodeAndMap(fileName);
-      mwccDebug('codeAndMap', codeAndMap, fileName);
+      debug('codeAndMap', codeAndMap, fileName);
       return _compile.call(
         this,
-        assignMapToCode(fileName, codeAndMap[0], codeAndMap[1]),
+        assignMapToCode(fileName, codeAndMap.code, codeAndMap.map),
         fileName
       );
     };
@@ -40,7 +37,7 @@ const createProgram = () => {
   if (!existsSync(resolve(cwd, 'tsconfig.json'))) {
     throw new Error(`tsconfig.json does not exist in '${cwd}'`);
   }
-  mwccDebug('cwd', cwd);
+  debug('cwd', cwd);
   const { config } = resolveTsConfigFile(cwd, undefined, undefined, undefined, {
     compilerOptions: {
       sourceMap: true,
@@ -50,7 +47,7 @@ const createProgram = () => {
       declaration: false,
     },
   });
-  mwccDebug('config', config);
+  debug('config', config);
   const compilerHost = new CompilerHost(cwd, config);
   const program = new Program(compilerHost);
   return program;
