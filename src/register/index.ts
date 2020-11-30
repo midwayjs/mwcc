@@ -1,4 +1,4 @@
-import { ignoreFile, assignMapToCode } from './utils';
+import { ignoreFile } from './utils';
 import { debug } from '../util';
 import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
@@ -23,11 +23,7 @@ function register() {
     m._compile = function (_: string, fileName: string) {
       const codeAndMap = getCompiledCodeAndMap(fileName);
       debug('codeAndMap', codeAndMap, fileName);
-      return _compile.call(
-        this,
-        assignMapToCode(fileName, codeAndMap.code, codeAndMap.map),
-        fileName
-      );
+      return _compile.call(this, codeAndMap.code, fileName);
     };
     return old(m, filename);
   };
@@ -42,8 +38,7 @@ const createProgram = () => {
   const { config } = resolveTsConfigFile(cwd, undefined, undefined, undefined, {
     compilerOptions: {
       sourceMap: true,
-      inlineSourceMap: false,
-      inlineSources: true,
+      inlineSourceMap: true,
       outDir: '.mwts-node',
       declaration: false,
     },
