@@ -136,14 +136,16 @@ export class Program {
     return { summary, diagnostics: allDiagnostics };
   }
 
-  emitFile(fileName: string): { code: string; map: string } {
-    const output = { code: '', map: '' };
+  emitFile(fileName: string): { code: string; map: string; declaration: string } {
+    const output = { code: '', map: '',  declaration: '' };
     const sourceFile = this.program.getSourceFile(fileName);
     this.program.emit(
       sourceFile,
       (path, file) => {
         if (path.endsWith('.map')) {
           output.map = file;
+        } else if (path.endsWith('.d.ts')) {
+          output.declaration = file;
         } else {
           output.code = file;
         }
