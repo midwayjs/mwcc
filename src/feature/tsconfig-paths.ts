@@ -246,7 +246,7 @@ function isAsyncImport(node: ts.CallExpression): node is ts.CallExpression {
 }
 
 function getModuleSpecifier(node: ts.Node) {
-  if (!ts.isStringLiteral(node)) {
+  if (!node || !ts.isStringLiteral(node)) {
     return undefined;
   }
   return node.text;

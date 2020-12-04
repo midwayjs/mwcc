@@ -212,7 +212,12 @@ export default [
         '@async/*': ['./src/async/*'],
       },
     },
-    assertOutputFiles: ['index.js', 'index.d.ts', 'util/index.js'],
+    assertOutputFiles: [
+      'index.js',
+      'index.d.ts',
+      'util/index.js',
+      'export/without-module-specifier.js',
+    ],
   },
   {
     name: 'export-types',
