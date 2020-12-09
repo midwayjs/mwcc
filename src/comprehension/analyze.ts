@@ -5,6 +5,7 @@ import { Program } from '../program';
 import { query } from '../tsquery';
 import { getExpressionBaseInfo } from './expression';
 import { geNodeInfo, getClassInfo } from './node';
+import { toUnix } from '../util';
 
 interface IAnalyzeOptions {
   program?: Program;
@@ -21,10 +22,12 @@ export class Analyzer {
   };
   private options: IAnalyzeOptions;
   private checker: ts.TypeChecker;
+  private projectDir: string;
 
   constructor(options: IAnalyzeOptions) {
     this.options = options || {};
     this.program = this.initProgram(options);
+    this.projectDir = toUnix(this.program.context.projectDir);
     this.checker = this.program.getTypeChecker();
   }
 
@@ -121,7 +124,7 @@ export class Analyzer {
   // get class info
   private getClassInfo(classItem: ts.ClassDeclaration) {
     const sourceFile: ts.SourceFile = classItem.getSourceFile();
-    if (sourceFile.fileName.indexOf(this.program.context.projectDir) === -1) {
+    if (sourceFile.fileName.indexOf(this.projectDir) === -1) {
       return;
     }
     return getClassInfo(classItem);

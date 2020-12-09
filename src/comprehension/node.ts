@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { getSourceFileText, getCodePositionInfo } from '../util';
+import { getSourceFileText, getCodePositionInfo, toUnix } from '../util';
 import { AnalyzePositoin } from '../type';
 import { formatParams } from './params';
 
@@ -55,7 +55,8 @@ const getNodePosition = (node: ts.Node) => {
 };
 
 const getBaseInfo = (node: ts.Node) => {
-  const { fileName }: ts.SourceFile = node.getSourceFile();
+  let { fileName }: ts.SourceFile = node.getSourceFile();
+  fileName = toUnix(fileName);
   let name = (node as any)?.name?.escapedText || '';
   const position = getNodePosition(node);
   const id = `${fileName.replace(/^.*?src\//, '')}#${name}#${
