@@ -1,5 +1,7 @@
 import ts from 'typescript';
-export const formatParams = (args: ts.NodeArray<ts.Expression>) => {
+export const formatParams = (
+  args: ts.NodeArray<ts.Expression | ts.ParameterDeclaration>
+) => {
   return args.map((arg: any) => {
     if (arg.name) {
       return arg.name.escapedText;

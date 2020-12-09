@@ -4,7 +4,7 @@ import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { query } from '../tsquery';
 import { getExpressionBaseInfo } from './expression';
-import { geNodeInfo } from './node';
+import { geNodeInfo, getClassInfo } from './node';
 
 interface IAnalyzeOptions {
   program?: Program;
@@ -17,6 +17,7 @@ export class Analyzer {
   private program: Program;
   private analyzeResult: AnalyzeResult = {
     decorator: {},
+    class: {},
   };
   private options: IAnalyzeOptions;
   private checker: ts.TypeChecker;
@@ -28,6 +29,7 @@ export class Analyzer {
   }
 
   public analyze() {
+    this.analyzeResult.class = this.getClasses();
     this.analyzeResult.decorator = this.getDecorators();
     return this.analyzeResult;
   }
@@ -48,6 +50,24 @@ export class Analyzer {
         new CompilerHost(projectDir || process.cwd(), mwccConfig || {})
       );
     }
+  }
+
+  private getClasses() {
+    const classMap = {};
+    for (const sourceFile of this.program.getSourceFiles()) {
+      const classes = query(
+        sourceFile,
+        'ClassDeclaration'
+      ) as ts.ClassDeclaration[];
+      classes.forEach(classItem => {
+        const classInfo = this.getClassInfo(classItem);
+        if (!classInfo) {
+          return;
+        }
+        classMap[classInfo.id] = classInfo;
+      });
+    }
+    return classMap;
   }
 
   private getDecorators() {
@@ -98,6 +118,15 @@ export class Analyzer {
     }
   }
 
+  // get class info
+  private getClassInfo(classItem: ts.ClassDeclaration) {
+    const sourceFile: ts.SourceFile = classItem.getSourceFile();
+    if (sourceFile.fileName.indexOf(this.program.context.projectDir) === -1) {
+      return;
+    }
+    return getClassInfo(classItem);
+  }
+
   private analyzeDecorator(decorator: ts.Decorator) {
     if (!ts.isCallExpression(decorator.expression)) {
       return;
@@ -119,7 +148,7 @@ export class Analyzer {
       sourceFile: sourceInfo.sourceFile,
       params: expressionInfo.params,
       position: expressionInfo.position,
-      target: geNodeInfo(decorator.parent, this.checker),
+      target: geNodeInfo(decorator.parent, this.analyzeResult.class),
     };
     return decoratorInfo;
   }
