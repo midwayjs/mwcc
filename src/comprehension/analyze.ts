@@ -4,7 +4,7 @@ import { CompilerHost } from '../compiler-host';
 import { Program } from '../program';
 import { query } from '../tsquery';
 import { getExpressionBaseInfo } from './expression';
-import { geNodeInfo, getClassInfo } from './node';
+import { getNodeInfo, getClassInfo } from './node';
 import { toUnix } from '../util';
 
 interface IAnalyzeOptions {
@@ -151,7 +151,7 @@ export class Analyzer {
       sourceFile: sourceInfo.sourceFile,
       params: expressionInfo.params,
       position: expressionInfo.position,
-      target: geNodeInfo(decorator.parent, this.analyzeResult.class),
+      target: getNodeInfo(decorator.parent, this.analyzeResult.class),
     };
     return decoratorInfo;
   }

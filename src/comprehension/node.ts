@@ -1,19 +1,12 @@
 import ts from 'typescript';
 import { getSourceFileText, getCodePositionInfo, toUnix } from '../util';
-import { AnalyzePositoin } from '../type';
+import { AnalyzePositoin, AnalyzeNode } from '../type';
 import { formatParams } from './params';
 
-interface IAnalyzeNodeInfo {
-  type: string;
-  name: string;
-  position: AnalyzePositoin;
-  classInfo?: {
-    extends?: string;
-    properties: string[];
-  };
-}
-
-export const geNodeInfo = (node: ts.Node, classInfo): IAnalyzeNodeInfo => {
+export const getNodeInfo = (
+  node: ts.Node,
+  classInfo: { [classid: string]: AnalyzeNode }
+): AnalyzeNode => {
   if (ts.isMethodDeclaration(node)) {
     const classBaseInfo = getBaseInfo(node.parent);
     const classDetail = classInfo[classBaseInfo.id];
@@ -42,7 +35,7 @@ export const getExportType = (node: ts.Node): string => {
   return isExport ? (isDefault ? 'default' : 'export') : 'not';
 };
 
-const getNodePosition = (node: ts.Node) => {
+const getNodePosition = (node: ts.Node): AnalyzePositoin => {
   const code = getSourceFileText(node);
   return {
     range: {
@@ -54,7 +47,7 @@ const getNodePosition = (node: ts.Node) => {
   };
 };
 
-const getBaseInfo = (node: ts.Node) => {
+const getBaseInfo = (node: ts.Node): AnalyzeNode => {
   let { fileName }: ts.SourceFile = node.getSourceFile();
   fileName = toUnix(fileName);
   let name = (node as any)?.name?.escapedText || '';
@@ -82,7 +75,7 @@ const getBaseInfo = (node: ts.Node) => {
   };
 };
 
-export const getClassInfo = (classItem: ts.ClassDeclaration) => {
+export const getClassInfo = (classItem: ts.ClassDeclaration): AnalyzeNode => {
   const baseInfo = getBaseInfo(classItem);
   const classInfo: any = {
     exportType: getExportType(classItem),

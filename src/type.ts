@@ -63,6 +63,14 @@ export interface AnalyzeNode {
   type: string;
   name: string;
   position: AnalyzePositoin;
+  id: string;
+  fileName: string;
+  nodeInfo?: {
+    extends?: string;
+    member: {
+      [memberName: string]: AnalyzeNode;
+    };
+  };
   params?: any[];
   response?: any;
 }
