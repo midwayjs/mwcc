@@ -40,6 +40,9 @@ export interface TransformerPlugin {
 }
 
 export interface AnalyzeResult {
+  class: {
+    [classId: string]: AnalyzeNode;
+  };
   decorator: {
     [decoratorName: string]: AnalyzeDecoratorInfo[];
   };
@@ -50,16 +53,26 @@ export interface AnalyzeDecoratorInfo {
   sourceFile: string;
   params: any[];
   position: AnalyzePositoin;
-  target: {
-    type: string;
-    name: string;
-    position: AnalyzePositoin;
-    params?: any[];
-    response?: any;
-  };
+  target: AnalyzeNode;
   childDecorators?: {
     [decoratorName: string]: AnalyzeDecoratorInfo[];
   };
+}
+
+export interface AnalyzeNode {
+  type: string;
+  name: string;
+  position: AnalyzePositoin;
+  id: string;
+  fileName: string;
+  nodeInfo?: {
+    extends?: string;
+    member: {
+      [memberName: string]: AnalyzeNode;
+    };
+  };
+  params?: any[];
+  response?: any;
 }
 
 export interface AnalyzePositoin {

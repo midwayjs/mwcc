@@ -53,4 +53,20 @@ describe('analyze', () => {
     );
     assert(result);
   });
+  it('analyze class info', async () => {
+    const analyzeInstance = new Analyzer({
+      projectDir: resolve(__dirname, './analyze/class/src'),
+    });
+    const result: any = analyzeInstance.analyze();
+    // console.log('result', JSON.stringify(result, null, ' '));
+    const classList = Object.keys(result.class);
+    assert(classList.length === 2);
+    assert(result.class[classList[0]].type === 'class');
+    assert(result.class[classList[0]].name);
+    assert(result.class[classList[0]].fileName);
+    assert(result.class[classList[0]].position.range.start);
+    assert(result.class[classList[0]].nodeInfo.exportType === 'export');
+    assert(result.class[classList[0]].nodeInfo.member.ctx.type === 'property');
+    assert(result);
+  });
 });

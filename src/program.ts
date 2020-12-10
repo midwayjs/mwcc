@@ -136,8 +136,10 @@ export class Program {
     return { summary, diagnostics: allDiagnostics };
   }
 
-  emitFile(fileName: string): { code: string; map: string; declaration: string } {
-    const output = { code: '', map: '',  declaration: '' };
+  emitFile(
+    fileName: string
+  ): { code: string; map: string; declaration: string } {
+    const output = { code: '', map: '', declaration: '' };
     const sourceFile = this.program.getSourceFile(fileName);
     this.program.emit(
       sourceFile,
