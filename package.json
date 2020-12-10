@@ -9,8 +9,8 @@
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "build": "pegjs src/tsquery/parser.pegjs && tsc -p .",
-    "test": "mocha -r ts-node/register -t 1000000 test/**/*.test.ts",
-    "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 test/**/*.test.ts"
+    "test": "mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'",
+    "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'"
   },
   "keywords": [
     "midway",
