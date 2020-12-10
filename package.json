@@ -5,7 +5,7 @@
   "main": "dist/index",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "build": "pegjs src/tsquery/parser.pegjs && tsc -p .",
