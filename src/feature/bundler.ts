@@ -148,7 +148,7 @@ async function resolveNodeBinaryByTnvm(variant) {
 }
 
 function spawn(command: string, args: string[]) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const cp = childProcess.spawn(command, args, { stdio: 'inherit' });
     cp.on('error', err => {
       reject(err);

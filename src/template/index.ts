@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { nullTransformationContext } from '../transformation/null-transformation-context';
+import { Mutable } from '../util';
 
 export function template(
   str: string,
@@ -35,7 +36,10 @@ export function template(
   };
 }
 
-function markNodeSynthesized(node: ts.Node) {
+type MutablePositionNode = Mutable<ts.Node, 'pos' | 'end' | 'flags'>;
+
+function markNodeSynthesized(_node: ts.Node) {
+  const node = _node as MutablePositionNode;
   node.pos = -1;
   node.end = -1;
   node.flags |= ts.NodeFlags.Synthesized;

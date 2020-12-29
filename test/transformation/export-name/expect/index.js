@@ -5,10 +5,12 @@ function foo() {
     return exports.useBar.bind(this)({ name: exports.useQuz.bind(this)() });
 }
 exports.foo = foo;
-exports.useBar = function ({ name }) {
+const useBar = function ({ name }) {
     return name + 'bar';
 };
-exports.useQuz = function () {
+exports.useBar = useBar;
+const useQuz = function () {
     return 'quz';
 };
+exports.useQuz = useQuz;
 //# sourceMappingURL=index.js.map

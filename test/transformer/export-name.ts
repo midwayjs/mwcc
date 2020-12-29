@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { TransformationContext } from '../../';
 import { template } from '../../src/template';
-import { USE } from '../../src/util';
+import { Mutable, USE } from '../../src/util';
 
 export default {
   transform: (ctx: TransformationContext) => {
@@ -37,7 +37,7 @@ export default {
       },
       'CallExpression Identifier': (node: ts.Identifier) => {
         if (node.text.startsWith('use')) {
-          const synthetic = buildBind(node);
+          const synthetic = buildBind(node) as Mutable<ts.Node, 'parent'>;
           synthetic.parent = node.parent;
           return synthetic;
         }

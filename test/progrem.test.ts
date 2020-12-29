@@ -1,7 +1,7 @@
 import { resolveTsConfigFile, CompilerHost, Program } from '../src';
 import { join } from 'path';
 import assert from 'assert';
-describe('progrem', () => {
+describe('program', () => {
   it('emitFile', async () => {
     const cwd = join(__dirname, './cases/projects/bundle');
     const { config } = resolveTsConfigFile(
@@ -19,7 +19,7 @@ describe('progrem', () => {
     );
     const compilerHost = new CompilerHost(cwd, config);
     const program = new Program(compilerHost);
-    const result = program.emitFile('emit.ts');
+    const result = program.emitFile('src/entry.ts');
     assert(result.code.indexOf('function foo(it)') !== -1);
     assert(result.map.indexOf('"sources":["entry.ts"]') !== -1);
     assert(result.declaration.indexOf('export interface IFoo') !== -1);

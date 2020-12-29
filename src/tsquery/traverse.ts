@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { Mutable } from '../util';
 
 export interface Traverser {
   enter?: (node: ts.Node, parent: ts.Node | undefined) => void;
@@ -58,8 +59,10 @@ export function visit<T extends ts.Node>(
 
   return result;
 }
+type MutableParentNode = Mutable<ts.Node, 'parent'>;
 
-function setParent(node: ts.Node, ancestor: ts.Node) {
+function setParent(_node: ts.Node, ancestor: ts.Node) {
+  const node = _node as MutableParentNode;
   node.parent = ancestor;
   ts.forEachChild(node, child => {
     setParent(child, node);

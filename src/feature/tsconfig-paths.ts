@@ -257,6 +257,10 @@ function updateImportExportDeclaration(
   sourceFilePath: string,
   compilerOptions: ts.CompilerOptions
 ) {
+  if (node.moduleSpecifier == null) {
+    return node;
+  }
+
   const moduleSpecifier = getModuleSpecifier(
     node.moduleSpecifier as ts.Expression
   );
@@ -281,8 +285,8 @@ function updateImportExportDeclaration(
    * @see https://github.com/microsoft/TypeScript/issues/31446
    */
   Object.assign(node, {
-    moduleSpecifier: (ts as any).updateNode(
-      ts.createStringLiteral(target),
+    moduleSpecifier: updateWithOriginal(
+      ts.factory.createStringLiteral(target),
       node.moduleSpecifier
     ),
   });
@@ -315,4 +319,12 @@ interface InternalTS {
     moduleNameText: string,
     resolvedModule: unknown
   ): void;
+}
+
+function updateWithOriginal<T extends ts.Node>(updated: T, original: T): T {
+  if (updated !== original) {
+    ts.setOriginalNode(updated, original);
+    ts.setTextRange(updated, original);
+  }
+  return updated;
 }

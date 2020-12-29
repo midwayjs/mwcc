@@ -11,6 +11,7 @@ interface InternalTransformationContext {
 
 export const nullTransformationContext: ts.TransformationContext &
   InternalTransformationContext = {
+  factory: ts.factory,
   enableEmitNotification: noop,
   enableSubstitution: noop,
   endLexicalEnvironment: returnUndefined,
@@ -34,7 +35,7 @@ export const nullTransformationContext: ts.TransformationContext &
   addDiagnostic: noop,
 };
 
-function noop(_?: {} | null | undefined): void {}
+function noop(_?: unknown): void {}
 function returnUndefined(): undefined {
   return undefined;
 }

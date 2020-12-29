@@ -105,7 +105,7 @@ async function exec(file: string) {
   if (!fs.statSync(file).isFile()) {
     throw new Error(`${file} not exists`);
   }
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const cp = childProcess.spawn(process.execPath, [file], {
       stdio: 'inherit',
     });

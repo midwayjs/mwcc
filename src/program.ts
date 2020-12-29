@@ -1,7 +1,7 @@
 import { CompilerHost } from './compiler-host';
 import ts from 'typescript';
 import createTransformer from './transformation/transformer';
-import { safeJsonParse, assert } from './util';
+import { safeJsonParse, assert, debug } from './util';
 import path from 'path';
 import bundler from './feature/bundler';
 import { MwccConfig } from './type';
@@ -140,7 +140,13 @@ export class Program {
     fileName: string
   ): { code: string; map: string; declaration: string } {
     const output = { code: '', map: '', declaration: '' };
+    if (!path.isAbsolute(fileName)) {
+      fileName = path.join(this.context.projectDir, fileName);
+    }
     const sourceFile = this.program.getSourceFile(fileName);
+    if (sourceFile == null) {
+      throw new Error(`file not found in project: ${fileName}`);
+    }
     this.program.emit(
       sourceFile,
       (path, file) => {

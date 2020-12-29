@@ -2,6 +2,11 @@ import ts from 'typescript';
 import path from 'path';
 import { debuglog } from 'util';
 
+export type Mutable<T, P extends keyof T> = Omit<T, P> &
+  {
+    -readonly [key in P]: T[P];
+  };
+
 export function extend(...args) {
   return args.reduce((previous, current) => {
     if (current == null) {
@@ -37,7 +42,7 @@ export function any<T>(arr: T[], match: (T) => boolean): boolean {
   return false;
 }
 
-export function mixin<T extends {}, R extends {}>(lhs: T, rhs: R): T & R {
+export function mixin<T, R>(lhs: T, rhs: R): T & R {
   const it = {};
   Object.defineProperties(it, Object.getOwnPropertyDescriptors(lhs));
   Object.defineProperties(it, Object.getOwnPropertyDescriptors(rhs));
