@@ -2,16 +2,10 @@
   "projectRoot": "test/cases/projects/source-map-integration",
   "hintConfig": {
     "features": {
-      "bundler": {
-        "entries": {
-          "src/entry.ts": "index.js"
-        }
-      }
     }
   },
   "outputFiles": [
-    "dist/index.js",
-    "dist/index.js.map"
-  ],
-  "integration": "dist/index.js"
+    "dist/entry.js",
+    "dist/entry.js.map"
+  ]
 }

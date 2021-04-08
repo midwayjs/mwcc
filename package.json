@@ -35,7 +35,6 @@
     "ts-node": "^8.8.1"
   },
   "dependencies": {
-    "@midwayjs/ncc": "^0.22.2-1",
     "source-map": "^0.7.3",
     "source-map-support": "^0.5.16",
     "typescript": "~4.1.3"
