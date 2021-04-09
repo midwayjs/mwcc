@@ -2,15 +2,10 @@
   "projectRoot": "test/cases/projects/bundle",
   "hintConfig": {
     "features": {
-      "bundler": {
-        "entries": {
-          "src/entry.ts": "index.js"
-        }
-      }
     }
   },
   "outputFiles": [
-    "dist/index.js",
-    "dist/index.js.map"
+    "dist/entry.js",
+    "dist/entry.js.map"
   ]
 }

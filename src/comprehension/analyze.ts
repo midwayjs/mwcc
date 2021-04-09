@@ -94,12 +94,14 @@ export class Analyzer {
 
     for (const decorator of decoratorList) {
       if (decorator.target.type !== 'class') {
-        const parent = this.findParent(decoratorList, decorator);
-        if (parent) {
-          if (!parent.childDecorators) {
-            parent.childDecorators = {};
+        const parents = this.findParent(decoratorList, decorator);
+        if (parents?.length) {
+          for (const parent of parents) {
+            if (!parent.childDecorators) {
+              parent.childDecorators = {};
+            }
+            this.assignDecorators(parent.childDecorators, decorator);
           }
-          this.assignDecorators(parent.childDecorators, decorator);
         }
       }
     }
@@ -108,6 +110,7 @@ export class Analyzer {
 
   // find the class where the decorator is decorating the target
   private findParent(decorators, find) {
+    const matchedDecorators: any = [];
     for (const decorator of decorators) {
       if (
         decorator.target.type === 'class' &&
@@ -116,9 +119,10 @@ export class Analyzer {
           find.target.position.range.start &&
         decorator.target.position.range.end >= find.target.position.range.end
       ) {
-        return decorator;
+        matchedDecorators.push(decorator);
       }
     }
+    return matchedDecorators;
   }
 
   // get class info

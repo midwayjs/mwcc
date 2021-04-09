@@ -3,7 +3,6 @@ import ts from 'typescript';
 import createTransformer from './transformation/transformer';
 import { safeJsonParse, assert, debug } from './util';
 import path from 'path';
-import bundler from './feature/bundler';
 import { MwccConfig } from './type';
 
 export interface MwccContext {
@@ -114,13 +113,6 @@ export class Program {
     const reporter = this.getDiagnosticReporter();
 
     ts.sortAndDeduplicateDiagnostics(allDiagnostics).forEach(reporter);
-
-    /**
-     * 2. bundler
-     */
-    if (this.context.config?.features?.bundler) {
-      await bundler(this.context, this.host.compilerHost);
-    }
 
     /**
      * -1. finalize output files
