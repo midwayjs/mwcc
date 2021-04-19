@@ -30,7 +30,7 @@ export const forkNode = (cwd, tsCode): Promise<string> => {
   });
 };
 
-describe('register', () => {
+describe.skip('register', () => {
   it('fork node ts register', async () => {
     const cwd = join(__dirname, 'register/tsconfig-paths');
     const tsCode = join(cwd, 'src/index.ts');
