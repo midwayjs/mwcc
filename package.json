@@ -9,8 +9,8 @@
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "build": "pegjs src/tsquery/parser.pegjs && tsc -p .",
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'",
-    "cov": "TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'"
+    "test": "cross-env TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'",
+    "cov": "cross-env TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'"
   },
   "keywords": [
     "midway",
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.9.5",
+    "cross-env": "^7.0.3",
     "globby": "^11.0.0",
     "mocha": "^7.1.1",
     "mwts": "^1.1.2",
