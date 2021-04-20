@@ -10,7 +10,7 @@
     "lint:fix": "mwts fix",
     "build": "pegjs src/tsquery/parser.pegjs && tsc -p .",
     "test": "TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'",
-    "cov": "nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'"
+    "cov": "TS_NODE_COMPILER_OPTIONS='{\"allowJs\":false}' nyc --reporter text --reporter lcov mocha -r ts-node/register -t 1000000 'test/**/*.test.ts'"
   },
   "keywords": [
     "midway",
