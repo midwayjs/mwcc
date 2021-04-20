@@ -7,7 +7,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "src",
-    "allowJs": false,
+    "allowJs": true,
     "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
