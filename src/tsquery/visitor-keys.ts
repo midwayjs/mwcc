@@ -367,7 +367,7 @@ export const VisitorKeys: IVisitorKeys = new Proxy(
   {},
   {
     get: (target, key) => {
-      return KnownVisitorKeys(key as ts.SyntaxKind) ?? [];
+      return KnownVisitorKeys((key as unknown) as ts.SyntaxKind) ?? [];
     },
   }
 );
