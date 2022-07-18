@@ -94,6 +94,6 @@ export function createTransformationContext(
     if (symbol == null) {
       return [];
     }
-    return symbol.declarations;
+    return symbol.declarations || [];
   }
 }
