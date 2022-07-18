@@ -172,9 +172,9 @@ function matchAliasPath(
   };
 }
 
-function getCoreModules(
-  builtinModules: string[] | undefined
-): { [key: string]: boolean } {
+function getCoreModules(builtinModules: string[] | undefined): {
+  [key: string]: boolean;
+} {
   // The 'module.builtinModules' is not supported until Node.js 9.3.0
   builtinModules = builtinModules || [
     'assert',
@@ -304,7 +304,7 @@ function updateSourceFileResolvedModules(
   newModuleText: string,
   oldModuleText: string
 ) {
-  const its = (ts as unknown) as InternalTS;
+  const its = ts as unknown as InternalTS;
   const it = its.getResolvedModule(sourceFile, oldModuleText);
   its.setResolvedModule(sourceFile, newModuleText, it);
 }
@@ -323,6 +323,7 @@ interface InternalTS {
 
 function updateWithOriginal<T extends ts.Node>(updated: T, original: T): T {
   if (updated !== original) {
+    (updated as any).parent = original.parent;
     ts.setOriginalNode(updated, original);
     ts.setTextRange(updated, original);
   }

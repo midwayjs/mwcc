@@ -11,7 +11,9 @@ export const getExpressionBaseInfo = expression => {
   if (expression.arguments?.length) {
     params = formatParams(expression.arguments);
   }
-  const expressionName: string = (expression.expression as ts.Identifier).escapedText.toString();
+  const expressionName: string = (
+    expression.expression as ts.Identifier
+  ).escapedText.toString();
   return {
     expressionName,
     params,

@@ -21,7 +21,7 @@ export default function createTransformer(
       if (typeof it === 'object') {
         return chainBundle(
           conditionalTransform(
-            (it as unknown) as ConditionalTransformer,
+            it as unknown as ConditionalTransformer,
             transformCtx
           )
         );

@@ -2,10 +2,9 @@ import ts from 'typescript';
 import path from 'path';
 import { debuglog } from 'util';
 
-export type Mutable<T, P extends keyof T> = Omit<T, P> &
-  {
-    -readonly [key in P]: T[P];
-  };
+export type Mutable<T, P extends keyof T> = Omit<T, P> & {
+  -readonly [key in P]: T[P];
+};
 
 export function extend(...args) {
   return args.reduce((previous, current) => {

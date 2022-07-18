@@ -41,9 +41,8 @@ export function createTransformationContext(
   return mixin<ts.TransformationContext, typeof newCtx>(ctx, newCtx);
 
   function prependHelperStatements(...stmts: ts.Statement[]) {
-    newCtx.additionalHelperStatements = newCtx.additionalHelperStatements.concat(
-      stmts
-    );
+    newCtx.additionalHelperStatements =
+      newCtx.additionalHelperStatements.concat(stmts);
   }
 
   function swapAdditionalHelperStatements() {

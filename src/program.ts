@@ -128,9 +128,11 @@ export class Program {
     return { summary, diagnostics: allDiagnostics };
   }
 
-  emitFile(
-    fileName: string
-  ): { code: string; map: string; declaration: string } {
+  emitFile(fileName: string): {
+    code: string;
+    map: string;
+    declaration: string;
+  } {
     const output = { code: '', map: '', declaration: '' };
     if (!path.isAbsolute(fileName)) {
       fileName = path.join(this.context.projectDir, fileName);
