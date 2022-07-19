@@ -16,7 +16,8 @@ export default {
             node.decorators,
             node.modifiers,
             node.importClause,
-            ts.createStringLiteral('power-assert')
+            ts.createStringLiteral('power-assert'),
+            undefined
           );
         }
 
