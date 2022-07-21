@@ -4,6 +4,8 @@ import { TransformationContext } from '../transformation/transformation-context'
 import path from 'path';
 import { toUnix } from '../util';
 
+const factory = ts.factory;
+
 export default {
   transform(ctx: TransformationContext) {
     const compilerOptions = ctx.getCompilerOptions();
@@ -79,9 +81,14 @@ export default {
           moduleSpecifier
         );
         // ts.updateImportTypeNode is invalid
-        return Object.assign(node, {
-          argument: ts.createLiteralTypeNode(ts.createStringLiteral(target)),
+        Object.assign(node, {
+          argument: factory.createLiteralTypeNode(
+            factory.createStringLiteral(target)
+          ),
         });
+        UpdateParent(node.argument, node);
+        UpdateParent((node.argument as any).literal, node.argument);
+        return node;
       },
       // export xxx from '...'
       ExportDeclaration(node: ts.ExportDeclaration) {
@@ -119,9 +126,17 @@ export default {
           target,
           moduleSpecifier
         );
-        return ts.updateCall(node, node.expression, node.typeArguments, [
-          ts.createStringLiteral(target),
-        ]);
+        const argument: any = factory.createStringLiteral(target);
+        const newNode = factory.updateCallExpression(
+          node,
+          node.expression,
+          node.typeArguments,
+          [argument]
+        );
+        (newNode as any).flags = node.flags;
+        UpdateParent(newNode, node.parent);
+        UpdateParent(argument, node as ts.Expression);
+        return newNode;
       },
     };
   },
@@ -172,9 +187,9 @@ function matchAliasPath(
   };
 }
 
-function getCoreModules(
-  builtinModules: string[] | undefined
-): { [key: string]: boolean } {
+function getCoreModules(builtinModules: string[] | undefined): {
+  [key: string]: boolean;
+} {
   // The 'module.builtinModules' is not supported until Node.js 9.3.0
   builtinModules = builtinModules || [
     'assert',
@@ -284,11 +299,13 @@ function updateImportExportDeclaration(
    * @see https://github.com/microsoft/TypeScript/issues/40603
    * @see https://github.com/microsoft/TypeScript/issues/31446
    */
+
+  const newModuleSpecifier = updateWithOriginal(
+    ts.factory.createStringLiteral(target),
+    node.moduleSpecifier
+  );
   Object.assign(node, {
-    moduleSpecifier: updateWithOriginal(
-      ts.factory.createStringLiteral(target),
-      node.moduleSpecifier
-    ),
+    moduleSpecifier: newModuleSpecifier,
   });
   updateSourceFileResolvedModules(
     node.getSourceFile(),
@@ -304,7 +321,7 @@ function updateSourceFileResolvedModules(
   newModuleText: string,
   oldModuleText: string
 ) {
-  const its = (ts as unknown) as InternalTS;
+  const its = ts as unknown as InternalTS;
   const it = its.getResolvedModule(sourceFile, oldModuleText);
   its.setResolvedModule(sourceFile, newModuleText, it);
 }
@@ -323,8 +340,20 @@ interface InternalTS {
 
 function updateWithOriginal<T extends ts.Node>(updated: T, original: T): T {
   if (updated !== original) {
+    UpdateParent(updated, original.parent);
     ts.setOriginalNode(updated, original);
-    ts.setTextRange(updated, original);
   }
   return updated;
+}
+
+//
+function UpdateParent<T extends ts.Node | ts.Expression>(
+  currentNode: T,
+  parent: T
+) {
+  if (!currentNode.parent) {
+    Object.assign(currentNode, {
+      parent,
+    });
+  }
 }

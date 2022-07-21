@@ -8,7 +8,7 @@ export interface ImportedName {
 
 export function resolveImportedName(symbol: ts.Symbol) {
   const results: ImportedName[] = [];
-  for (const decl of symbol.declarations) {
+  for (const decl of symbol.declarations || []) {
     /**
      * One of:
      * - import { <foo> } from 'mod';

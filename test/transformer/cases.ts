@@ -170,9 +170,11 @@ export default [
                 // Insert no symbol identifiers
                 const id = node as ts.Identifier;
                 if (id.text === 'demo') {
-                  return (template(`${(node as ts.Identifier).text}`)(
-                    {}
-                  )[0] as ts.ExpressionStatement).expression;
+                  return (
+                    template(`${(node as ts.Identifier).text}`)(
+                      {}
+                    )[0] as ts.ExpressionStatement
+                  ).expression;
                 }
                 return node;
               },
